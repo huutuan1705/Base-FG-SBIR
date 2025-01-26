@@ -1,4 +1,5 @@
 import torch
+import torchvision.transforms as transforms
 
 def collate_self_train(batch):
     batch_mod = {'sketch_img': [], 'sketch_boxes': [],
@@ -37,3 +38,20 @@ def collate_self_test(batch):
     batch_mod['positive_img'] = torch.stack(batch_mod['positive_img'], dim=0)
 
     return batch_mod
+
+def get_transform(type):
+    transform_list = []
+    transform_list.append([
+        transforms.Resize(299),
+        transforms.ToTensor(),
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+    ])
+    
+    if type is 'train':
+        transform_list.append([
+            transforms.RandomHorizontalFlip(0.1),
+            transforms.RandomRotation(0.1),
+        ])
+        
+    return transform_list
+    
