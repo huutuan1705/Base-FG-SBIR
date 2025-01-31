@@ -4,6 +4,9 @@ import argparse
 import torch.utils.data as data 
 
 from dataset import FGSBIR_Dataset
+from model import FGSBIR_Model
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def get_dataloader(args):
     dataset_train = FGSBIR_Dataset(args, mode='train')
@@ -24,7 +27,7 @@ if __name__ == "__main__":
     parsers.add_argument('--batch_size', type=int, default=16)
     parsers.add_argument('--threads', type=int, default=4)
     parsers.add_argument('--learning_rate', type=float, default=0.0001)
-    parsers.add_argument('--max_epoch', type=int, default=200)
+    parsers.add_argument('--epochs', type=int, default=200)
     parsers.add_argument('--eval_freq_iter', type=int, default=100)
     parsers.add_argument('--print_freq_iter', type=int, default=1)
     
@@ -32,4 +35,28 @@ if __name__ == "__main__":
     dataloader_train, dataloader_test = get_dataloader(args=args)
     print(args)
     
+    model = FGSBIR_Model(args=args)
+    model.to(device)
     
+    step_count, top1, top10 = -1, 0, 0
+    
+    for i_epoch in range(args.epochs):
+        for batch_data in dataloader_train:
+            step_count = step_count + 1
+            start = time.time()
+            model.train()
+            loss = model.train_model(batch=batch_data)
+
+            if step_count % args.print_freq_iter == 0:
+                print('Epoch: {}, Iteration: {}, Loss: {:.5f}, Top1_Accuracy: {:.5f}, Top10_Accuracy: {:.5f}, Time: {}'.format
+                      (i_epoch, step_count, loss, top1, top10, time.time()-start))
+
+            if step_count % args.eval_freq_iter == 0:
+                with torch.no_grad():
+                    top1_eval, top10_eval = model.evaluate(dataloader_test)
+                    print('results : ', top1_eval, ' / ', top10_eval)
+
+                if top1_eval > top1:
+                    torch.save(model.state_dict(), args.backbone_name + '_' + args.dataset_name + '_model_best.pth')
+                    top1, top10 = top1_eval, top10_eval
+                    print('Model Updated')
