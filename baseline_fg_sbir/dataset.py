@@ -55,6 +55,7 @@ class FGSBIR_Dataset(Dataset):
             vector_x = self.coordinate[sketch_path]
             sketch_img = rasterize_sketch(vector_x)
             print(type(sketch_img))
+            print(sketch_img)
             
             sketch_img = Image.fromarray(sketch_img).convert("RGB")
             
