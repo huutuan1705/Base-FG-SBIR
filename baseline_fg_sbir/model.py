@@ -12,7 +12,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class FGSBIR_Model(nn.Module):
     def __init__(self, args):
         super(FGSBIR_Model, self).__init__()
-        self.sample_embedding_network = eval(args.backbone_name + "_Network(args)")
+        self.sample_embedding_network = eval(args.backbone_name + "(args)")
         self.loss = nn.TripletMarginLoss(margin=0.2)
         self.sample_train_params = self.sample_embedding_network.parameters()
         self.optimizer = optim.Adam(self.sample_train_params, args.learning_rate)
