@@ -54,12 +54,9 @@ class FGSBIR_Dataset(Dataset):
             
             vector_x = self.coordinate[sketch_path]
             sketch_img = rasterize_sketch(vector_x)
-            # print(type(sketch_img))
-            if str(type(sketch_img)) == "<class 'numpy.ndarray'>":
-                print(type(sketch_img))
-            else:
-                print(f"Type {str(type(sketch_img))} is not support")
-                
+            # <class 'numpy.ndarray'>
+            print("Shape:", sketch_img.shape, "Dtype:", sketch_img.dtype)
+               
             sketch_img = Image.fromarray(sketch_img).convert("RGB")
             
             positive_image = Image.open(positive_path).convert("RGB")
