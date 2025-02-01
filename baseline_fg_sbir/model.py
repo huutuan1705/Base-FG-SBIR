@@ -4,8 +4,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from torch import optim
-from torch.autograd import Variable
-from backbones import InceptionV3, VGG16, ResNet50
+from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -44,7 +43,7 @@ class FGSBIR_Model(nn.Module):
         Sketch_Name = []
         start_time = time.time()
         self.eval()
-        for i_batch, sanpled_batch in enumerate(datloader_test):
+        for i_batch, sanpled_batch in enumerate(tqdm(datloader_test)):
             sketch_feature, positive_feature= self.test_forward(sanpled_batch)
             Sketch_Feature_ALL.extend(sketch_feature)
             Sketch_Name.extend(sanpled_batch['sketch_path'])
@@ -71,5 +70,5 @@ class FGSBIR_Model(nn.Module):
         top1 = rank.le(1).sum().numpy() / rank.shape[0]
         top10 = rank.le(10).sum().numpy() / rank.shape[0]
 
-        print('Time to EValuate:{}'.format(time.time() - start_time))
+        # print('Time to EValuate:{}'.format(time.time() - start_time))
         return top1, top10
