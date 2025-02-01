@@ -53,7 +53,7 @@ def draw_image(vector_image, side=256):
     return raster_image
 
 def preprocess(sketch_points, side=256):
-    sketch_points = sketch_points.astype(np.float64)
+    sketch_points = sketch_points.astype(np.float)
     sketch_points[:, :2] = sketch_points[:, :2] / np.array([256, 256])
     sketch_points[:, :2] = sketch_points[:, :2] * side
     sketch_points = np.round(sketch_points)
