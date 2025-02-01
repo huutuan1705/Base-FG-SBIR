@@ -41,14 +41,14 @@ def collate_self_test(batch):
 
 def get_transform(type):
     transform_list = []
-    transform_list.append([
+    transform_list.extend([
         transforms.Resize(299),
         transforms.ToTensor(),
         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ])
     
     if type is 'train':
-        transform_list.append([
+        transform_list.extend([
             transforms.RandomHorizontalFlip(0.1),
             transforms.RandomRotation(0.1),
         ])
