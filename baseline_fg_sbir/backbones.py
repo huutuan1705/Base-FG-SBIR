@@ -6,7 +6,7 @@ import torch.nn.functional as F
 from torchvision.models import Inception_V3_Weights, ResNet50_Weights, VGG16_Weights
 
 class ResNet50(nn.Module):
-    def __init__(self, hp):
+    def __init__(self, args):
         super(ResNet50, self).__init__()
         backbone = models.resnet50(weights=ResNet50_Weights.DEFAULT)
         
@@ -24,7 +24,7 @@ class ResNet50(nn.Module):
         return F.normalize(x)
     
 class VGG16(nn.Module):
-    def __init__(self, hp):
+    def __init__(self, args):
         super(VGG16, self).__init__()
         self.backbone = models.vgg16(weights=VGG16_Weights.DEFAULT).features
         self.pool_method =  nn.AdaptiveMaxPool2d(1)
@@ -35,7 +35,7 @@ class VGG16(nn.Module):
         return F.normalize(x)
     
 class InceptionV3(nn.Module):
-    def __init__(self, hp):
+    def __init__(self, args):
         super(InceptionV3, self).__init__()
         backbone = models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
 
