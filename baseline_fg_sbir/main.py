@@ -3,6 +3,7 @@ import torch
 import argparse
 import torch.utils.data as data 
 
+from tqdm import tqdm
 from dataset import FGSBIR_Dataset
 from model import FGSBIR_Model
 
@@ -41,22 +42,23 @@ if __name__ == "__main__":
     step_count, top1, top10 = -1, 0, 0
     
     for i_epoch in range(args.epochs):
-        for batch_data in dataloader_train:
+        print(f"Epoch: {i_epoch+1} / {args.epochs}")
+        loss = 0
+        for _, batch_data in enumerate(tqdm(dataloader_train)):
             step_count = step_count + 1
             start = time.time()
             model.train()
             loss = model.train_model(batch=batch_data)
 
-            if step_count % args.print_freq_iter == 0:
-                print('Epoch: {}, Iteration: {}, Loss: {:.5f}, Top1_Accuracy: {:.5f}, Top10_Accuracy: {:.5f}, Time: {}'.format
-                      (i_epoch, step_count, loss, top1, top10, time.time()-start))
-
-            if step_count % args.eval_freq_iter == 0:
-                with torch.no_grad():
-                    top1_eval, top10_eval = model.evaluate(dataloader_test)
-                    print('results : ', top1_eval, ' / ', top10_eval)
-
-                if top1_eval > top1:
-                    torch.save(model.state_dict(), args.backbone_name + '_' + args.dataset_name + '_model_best.pth')
-                    top1, top10 = top1_eval, top10_eval
-                    print('Model Updated')
+        with torch.no_grad():
+            model.eval()
+            top1_eval, top10_eval = model.evaluate(dataloader_test)
+            
+            if top1_eval > top1:
+                top1, top10 = top1_eval, top10_eval
+                torch.save(model.state_dict(), args.backbone_name + '_' + args.dataset_name + '_best.pth')
+                
+        print('Top 1 accuracy:  {:.2f}', top1_eval)
+        print('Top 10 accuracy: {:.2f}', top10_eval)
+        print('Loss:            {:.2f}', loss)
+        print("========================================")
