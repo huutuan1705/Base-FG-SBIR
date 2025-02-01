@@ -34,26 +34,25 @@ def draw_image(vector_image, side=256):
     raster_image = np.zeros((int(side), int(side)), dtype=np.float32)
     initX, initY = int(vector_image[0, 0]), int(vector_image[0, 1])
     pixel_length = 0
-    
+
     for i in range(0, len(vector_image)):
-        if i>0:
-            if vector_image[i-1, 2] == 1:
+        if i > 0:
+            if vector_image[i - 1, 2] == 1:
                 initX, initY = int(vector_image[i, 0]), int(vector_image[i, 1])
-                
-        cord_list = list(bresenham(initX, initY, int(vector_image[i, 0]), int(vector_image[i, 1])))
-        pixel_length += len(cord_list)
-        
-        for cord in cord_list:
-            if (cord[0] > 0 and cord[1] > 0) and (cord[0] <= side and cord[1] <= side):
+
+        cordList = list(bresenham(initX, initY, int(vector_image[i, 0]), int(vector_image[i, 1])))
+        pixel_length += len(cordList)
+
+        for cord in cordList:
+            if (cord[0] > 0 and cord[1] > 0) and (cord[0] < side and cord[1] < side):
                 raster_image[cord[1], cord[0]] = 255.0
-        
         initX, initY = int(vector_image[i, 0]), int(vector_image[i, 1])
-        
-    raster_image = scipy.ndimage.binary_dilation(raster_image)*255
+
+    raster_image = scipy.ndimage.binary_dilation(raster_image) * 255.0
     return raster_image
 
 def preprocess(sketch_points, side=256):
-    sketch_points = sketch_points.astype(np.float64)
+    sketch_points = sketch_points.astype(np.float32)
     sketch_points[:, :2] = sketch_points[:, :2] / np.array([256, 256])
     sketch_points[:, :2] = sketch_points[:, :2] * side
     sketch_points = np.round(sketch_points)
