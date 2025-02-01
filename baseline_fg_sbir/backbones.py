@@ -3,10 +3,12 @@ import torch.nn as nn
 import torchvision.models as models
 import torch.nn.functional as F
 
+from torchvision.models import Inception_V3_Weights, ResNet50_Weights, VGG16_Weights
+
 class ResNet50(nn.Module):
     def __init__(self, hp):
         super(ResNet50, self).__init__()
-        backbone = models.resnet50(pretrain=True)
+        backbone = models.resnet50(weights=ResNet50_Weights.DEFAULT)
         
         self.features = nn.Sequential()
         for name, module in backbone.named_children():
@@ -24,7 +26,7 @@ class ResNet50(nn.Module):
 class VGG16(nn.Module):
     def __init__(self, hp):
         super(VGG16, self).__init__()
-        self.backbone = models.vgg16(pretrained=True).features
+        self.backbone = models.vgg16(weights=VGG16_Weights.DEFAULT).features
         self.pool_method =  nn.AdaptiveMaxPool2d(1)
 
     def forward(self, input):
@@ -35,7 +37,7 @@ class VGG16(nn.Module):
 class InceptionV3(nn.Module):
     def __init__(self, hp):
         super(InceptionV3, self).__init__()
-        backbone = models.inception_v3(pretrained=True)
+        backbone = models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
 
         ## Extract Inception Layers ##
         self.Conv2d_1a_3x3 = backbone.Conv2d_1a_3x3
