@@ -1,10 +1,15 @@
 import os
 import pickle
 import torch
+import random
+import torchvision.transforms.functional as F
 
 from torch.utils.data import Dataset
 from utils import get_transform
 from random import randint
+from PIL import Image
+
+from rasterize import rasterize_sketch
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -24,6 +29,13 @@ class FGSBIR_Dataset(Dataset):
         self.train_transform = get_transform('train')
         self.test_transform = get_transform('test')
         
+    def __len__(self):
+        if self.mode == 'train':
+            return len(self.train_sketch)
+
+        return len(self.test_sketch)
+        
+        
     def __getitem__(self, item):
         samples = {}
         
@@ -41,5 +53,42 @@ class FGSBIR_Dataset(Dataset):
             negative_path = os.path.join(self.root_dir, 'photo', negative_sample + '.png')
             
             vector_x = self.coordinate[sketch_path]
+            sketch_img = rasterize_sketch(vector_x)
+            sketch_img = Image.fromarray(sketch_img).convert("RGB")
             
+            positive_image = Image.open(positive_path).convert("RGB")
+            negative_image = Image.open(negative_path).convert("RGB")
+            
+            n_flip = random.random()
+            if n_flip > 0.5:
+                sketch_img = F.hflip(sketch_img)
+                positive_image = F.hflip(positive_image)
+                negative_image = F.hflip(negative_image)
+            
+            sketch_img = self.train_transform(sketch_img)
+            positive_image = self.train_transform(positive_image)
+            negative_image = self.train_transform(negative_image)
+            
+            sample = {'sketch_img': sketch_img, 'sketch_path': sketch_path,
+                      'positive_img': positive_image, 'positive_path': positive_sample,
+                      'negative_img': negative_image, 'negative_path': negative_sample
+                      } 
+        
+        elif self.mode == "test":
+            sketch_path = self.test_sketch[item] 
+            vector_x = self.coordinate[sketch_path]
+            sketch_img = rasterize_sketch(vector_x)
+            sketch_img = self.test_transform(Image.fromarray(sketch_img).convert("RGB"))
+            
+            positive_sample = '_'.join(self.test_sketch[item].split('/')[-1].split('_')[:-1])
+            positive_path = os.path.join(self.root_dir, 'photo', positive_sample + '.png')
+            positive_image = self.test_transform(Image.fromarray(positive_path).convert("RGB"))
+            
+            sample = {'sketch_img': sketch_img, 'sketch_path': sketch_path, 'Coordinate':vector_x,
+                      'positive_img': positive_image, 'positive_path': positive_sample}
+            
+        return sample
+            
+            
+                     
             
