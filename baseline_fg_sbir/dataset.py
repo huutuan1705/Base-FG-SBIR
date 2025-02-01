@@ -58,7 +58,7 @@ class FGSBIR_Dataset(Dataset):
             if str(type(sketch_img)) == "numpy.ndarray":
                 print(type(sketch_img))
             else:
-                print("This type is not support")
+                print(f"Type {str(type(sketch_img))} is not support")
                 
             sketch_img = Image.fromarray(sketch_img).convert("RGB")
             
