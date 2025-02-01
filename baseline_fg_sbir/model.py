@@ -17,6 +17,11 @@ class FGSBIR_Model(nn.Module):
         self.sample_train_params = self.sample_embedding_network.parameters()
         self.optimizer = optim.Adam(self.sample_train_params, args.learning_rate)
         self.args = args
+    
+    def test_forward(self, batch):            #  this is being called only during evaluation
+        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
+        positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
+        return sketch_feature.cpu(), positive_feature.cpu()
         
     def train_model(self, batch):
         self.train()
