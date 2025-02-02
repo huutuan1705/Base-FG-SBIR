@@ -37,9 +37,10 @@ if __name__ == "__main__":
     print(args)
     
     model = FGSBIR_Model(args=args)
+    model = torch.nn.DataParallel(model, device_ids=[0, 1])
     model.to(device)
     
-    step_count, top1, top10 = -1, 0, 0
+    step_count, top1, top5, top10 = -1, 0, 0, 0
     
     for i_epoch in range(args.epochs):
         print(f"Epoch: {i_epoch+1} / {args.epochs}")
@@ -52,13 +53,14 @@ if __name__ == "__main__":
 
         with torch.no_grad():
             model.eval()
-            top1_eval, top10_eval = model.evaluate(dataloader_test)
+            top1_eval, top5_eval, top10_eval = model.evaluate(dataloader_test)
             
             if top1_eval > top1:
                 top1, top10 = top1_eval, top10_eval
                 torch.save(model.state_dict(), args.backbone_name + '_' + args.dataset_name + '_best.pth')
                 
         print('Top 1 accuracy:  {:.2f}', top1_eval)
+        print('Top 1 accuracy:  {:.2f}', top5_eval)
         print('Top 10 accuracy: {:.2f}', top10_eval)
         print('Loss:            {:.2f}', loss)
         print("========================================")
