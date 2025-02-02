@@ -49,7 +49,7 @@ if __name__ == "__main__":
             step_count = step_count + 1
             start = time.time()
             model.train()
-            loss = model.train_model(batch=batch_data)
+            loss = model.module.train_model(batch=batch_data)
 
         with torch.no_grad():
             model.eval()
