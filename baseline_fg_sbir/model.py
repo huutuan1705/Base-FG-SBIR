@@ -6,6 +6,8 @@ import torch.nn.functional as F
 from torch import optim
 from tqdm import tqdm
 
+from backbones import VGG16, ResNet50, InceptionV3
+
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class FGSBIR_Model(nn.Module):
