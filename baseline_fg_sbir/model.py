@@ -70,7 +70,8 @@ class FGSBIR_Model(nn.Module):
             rank[num] = distance.le(target_distance).sum()
 
         top1 = rank.le(1).sum().numpy() / rank.shape[0]
+        top5 = rank.le(5).sum().numpy() / rank.shape[0]
         top10 = rank.le(10).sum().numpy() / rank.shape[0]
 
         # print('Time to EValuate:{}'.format(time.time() - start_time))
-        return top1, top10
+        return top1, top5, top10
