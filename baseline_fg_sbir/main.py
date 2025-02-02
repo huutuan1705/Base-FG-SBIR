@@ -37,7 +37,6 @@ if __name__ == "__main__":
     print(args)
     
     model = FGSBIR_Model(args=args)
-    model = torch.nn.DataParallel(model, device_ids=[0, 1])
     model.to(device)
     
     step_count, top1, top5, top10 = -1, 0, 0, 0
@@ -49,7 +48,7 @@ if __name__ == "__main__":
             step_count = step_count + 1
             start = time.time()
             model.train()
-            loss = model.module.train_model(batch=batch_data)
+            loss = model.train_model(batch=batch_data)
 
         with torch.no_grad():
             model.eval()
