@@ -59,7 +59,7 @@ if __name__ == "__main__":
                 torch.save(model.state_dict(), args.backbone_name + '_' + args.dataset_name + '_best.pth')
                 
         print('Top 1 accuracy:  {:.2f}', top1_eval)
-        print('Top 1 accuracy:  {:.2f}', top5_eval)
+        print('Top 5 accuracy:  {:.2f}', top5_eval)
         print('Top 10 accuracy: {:.2f}', top10_eval)
         print('Loss:            {:.2f}', loss)
         print("========================================")
