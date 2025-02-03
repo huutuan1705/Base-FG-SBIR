@@ -4,6 +4,11 @@ This repository is built for traditional Fine-Grained Sketch-Based Image Retriev
 
 ## Training
 
+```console
+foo@bar:~$ whoami
+foo
+```
+
 !git clone https://github.com/huutuan1705/Base-FG-SBIR.git
 
 cd Base-FG-SBIR
