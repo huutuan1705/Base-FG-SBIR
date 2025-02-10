@@ -41,7 +41,8 @@ class InceptionV3(nn.Module):
     def __init__(self, args):
         super(InceptionV3, self).__init__()
         backbone = models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
-
+        # backbone = models.inception_v3()
+        
         ## Extract Inception Layers ##
         self.Conv2d_1a_3x3 = backbone.Conv2d_1a_3x3
         self.Conv2d_2a_3x3 = backbone.Conv2d_2a_3x3
@@ -101,10 +102,15 @@ class InceptionV3(nn.Module):
         # N x 2048 x 8 x 8
         x = self.Mixed_7c(x)
         
-        # output = self.pool_method(x).view(-1, 2048)
-        # return F.normalize(output)
+        output = self.pool_method(x).view(-1, 2048)
+        return F.normalize(output)
         
-        attention = AttentionImage(input_size=x.shape[1], hidden_layer=x.shape[1]).to(device)
-        output, _ = attention(x)
+        # attention = AttentionImage(input_size=x.shape[1], hidden_layer=x.shape[1]).to(device)
+        # output, _ = attention(x)
         
-        return output
+        # return output
+    
+# dummy_input = torch.randn(25, 3, 299, 299)
+# model = InceptionV3(None)
+# output = model(dummy_input)
+# print(output.shape) # [25, 2048]
