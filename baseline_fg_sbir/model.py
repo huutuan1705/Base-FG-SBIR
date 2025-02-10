@@ -38,7 +38,7 @@ class FGSBIR_Model(nn.Module):
         
         positive_feature = positive_linear(positive_feature).unsqueeze(1)
         negative_feature = negative_linear(negative_feature).unsqueeze(1)
-        sample_feature = sample_linear(negative_feature).unsqueeze(1)
+        sample_feature = sample_linear(sample_feature).unsqueeze(1)
 
         loss = self.loss(sample_feature, positive_feature, negative_feature)
         loss.backward()
