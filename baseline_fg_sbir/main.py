@@ -27,6 +27,7 @@ if __name__ == "__main__":
     parsers.add_argument('--output_size', type=int, default=64)
     parsers.add_argument('--root_dir', type=str, default='./../')
     parsers.add_argument('--batch_size', type=int, default=16)
+    parsers.add_argument('--margin', type=float, default=0.3)
     parsers.add_argument('--threads', type=int, default=4)
     parsers.add_argument('--learning_rate', type=float, default=0.0001)
     parsers.add_argument('--epochs', type=int, default=200)
