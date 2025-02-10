@@ -59,8 +59,8 @@ if __name__ == "__main__":
                 top1, top10 = top1_eval, top10_eval
                 torch.save(model.state_dict(), args.backbone_name + '_' + args.dataset_name + '_best.pth')
                 
-        print('Top 1 accuracy:  {:.2f}'.format(top1_eval))
-        print('Top 5 accuracy:  {:.2f}'.format(top5_eval))
-        print('Top 10 accuracy: {:.2f}'.format(top10_eval))
-        print('Loss:            {:.2f}'.format(loss))
+        print('Top 1 accuracy:  {:.3f}'.format(top1_eval))
+        print('Top 5 accuracy:  {:.3f}'.format(top5_eval))
+        print('Top 10 accuracy: {:.3f}'.format(top10_eval))
+        print('Loss:            {:.3f}'.format(loss))
         print("========================================")
