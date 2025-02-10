@@ -13,7 +13,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class FGSBIR_Model(nn.Module):
     def __init__(self, args):
         super(FGSBIR_Model, self).__init__()
-        self.sample_embedding_network = eval(args.backbone_name + "(args)")
+        # self.sample_embedding_network = eval(args.backbone_name + "(args)")
+        self.sample_embedding_network = args.backbone_name + "(args)"
         self.loss = nn.TripletMarginLoss(margin=args.margin)
         self.sample_train_params = self.sample_embedding_network.parameters()
         self.optimizer = optim.Adam(self.sample_train_params, args.learning_rate)
@@ -32,13 +33,13 @@ class FGSBIR_Model(nn.Module):
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
         sample_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         
-        # positive_linear = nn.Linear(positive_feature.shape[-1], self.args.output_size).to(device)
-        # negative_linear = nn.Linear(negative_feature.shape[-1], self.args.output_size).to(device)
-        # sample_linear = nn.Linear(sample_feature.shape[-1], self.args.output_size).to(device)
+        positive_linear = nn.Linear(positive_feature.shape[-1], self.args.output_size).to(device)
+        negative_linear = nn.Linear(negative_feature.shape[-1], self.args.output_size).to(device)
+        sample_linear = nn.Linear(sample_feature.shape[-1], self.args.output_size).to(device)
         
-        # positive_feature = positive_linear(positive_feature).unsqueeze(1)
-        # negative_feature = negative_linear(negative_feature).unsqueeze(1)
-        # sample_feature = sample_linear(sample_feature).unsqueeze(1)
+        positive_feature = positive_linear(positive_feature).unsqueeze(1)
+        negative_feature = negative_linear(negative_feature).unsqueeze(1)
+        sample_feature = sample_linear(sample_feature).unsqueeze(1)
 
         loss = self.loss(sample_feature, positive_feature, negative_feature)
         loss.backward()
