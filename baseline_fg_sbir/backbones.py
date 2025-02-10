@@ -99,6 +99,11 @@ class InceptionV3(nn.Module):
         # N x 1280 x 8 x 8
         x = self.Mixed_7b(x)
         # N x 2048 x 8 x 8
+        x = self.Mixed_7c(x)
+        
+        # output = self.pool_method(x).view(-1, 2048)
+        # return F.normalize(output)
+        
         attention = AttentionImage(input_size=x.shape[1], hidden_layer=x.shape[1]).to(device)
         output, _ = attention(x)
         
