@@ -31,6 +31,14 @@ class FGSBIR_Model(nn.Module):
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
         sample_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
+        
+        positive_linear = nn.Linear(positive_feature.shape[-1], self.args.output_size).to(device)
+        negative_linear = nn.Linear(negative_feature.shape[-1], self.args.output_size).to(device)
+        sample_linear = nn.Linear(sample_feature.shape[-1], self.args.output_size).to(device)
+        
+        positive_feature = positive_linear(positive_feature).unsqueeze(1)
+        negative_feature = negative_linear(negative_feature).unsqueeze(1)
+        sample_feature = sample_linear(negative_feature).unsqueeze(1)
 
         loss = self.loss(sample_feature, positive_feature, negative_feature)
         loss.backward()
