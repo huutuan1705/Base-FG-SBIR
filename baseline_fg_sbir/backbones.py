@@ -109,7 +109,7 @@ class InceptionV3(nn.Module):
         # output, _ = attention(x)
         # return output
         
-        cbam = CBAM(gate_channels=x.shape[1])
+        cbam = CBAM(gate_channels=x.shape[1]).to(device)
         x = cbam(x)
         output = self.pool_method(x).view(-1, 2048)
         return F.normalize(output)
