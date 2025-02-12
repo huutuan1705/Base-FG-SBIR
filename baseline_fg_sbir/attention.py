@@ -31,4 +31,10 @@ class AttentionImage(nn.Module):
         x = F.adaptive_avg_pool2d(x, (1, 1))
         x = x.view(x.size(0), -1)
         
-        return x, attn_mask
+        return x
+    
+# input_tensor = torch.randn(68, 2048, 8, 8)
+# model = AttentionImage(input_size=2048)
+# output= model(input_tensor)
+
+# print("Output shape:", output.shape)
