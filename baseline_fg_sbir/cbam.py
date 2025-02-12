@@ -93,6 +93,22 @@ class CBAM(nn.Module):
         if not self.no_spatial:
             x_out = self.SpatialGate(x_out)
         return x_out
+
+class AttentionWithCBAM(nn.Module):
+    def __init__(self, in_channels, reduction_ratio=16, pool_types=['avg', 'max']):
+        super(AttentionWithCBAM, self).__init__()
+        self.attention = CBAM(gate_channels=in_channels, 
+                            reduction_ratio=reduction_ratio,
+                            pool_types=pool_types)
+        self.global_pool = nn.AdaptiveAvgPool2d(1)
+        
+    def forward(self, x):
+        att = self.attention(x)
+        enhanced = x + x * att
+        out = self.global_pool(enhanced)
+        out = out.squeeze(-1).squeeze(-1)
+        
+        return out
     
 # input_tensor = torch.randn(68, 2048, 8, 8)
 # model = CBAM(gate_channels=2048)
