@@ -66,9 +66,14 @@ if __name__ == "__main__":
                 torch.save(model.state_dict(), args.dataset_name + '_best.pth')
                 torch.save(model.sample_embedding_network.state_dict(), f"{args.dataset_name}_{args.backbone_name}.pth")
                 torch.save({
+                    'positive_attention': model.positive_attention.state_dict(),
+                    'negative_attention': model.negative_attention.state_dict(),
+                    'sketch_attention': model.sketch_attention.state_dict()
+                }, f"{args.dataset_name}_attentions.pth")
+                torch.save({
                     'positive_linear': model.positive_linear.state_dict(),
                     'negative_linear': model.negative_linear.state_dict(),
-                    'sample_linear': model.sample_linear.state_dict()
+                    'sketch_linear': model.sketch_linear.state_dict()
                 }, f"{args.dataset_name}_linears.pth")
         
         # Load model

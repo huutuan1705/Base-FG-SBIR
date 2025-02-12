@@ -19,10 +19,14 @@ class FGSBIR_Model(nn.Module):
         self.sample_train_params = self.sample_embedding_network.parameters()
         self.optimizer = optim.Adam(self.sample_train_params, args.learning_rate)
         self.args = args
-        self.attention = AttentionWithCBAM(in_channels=2048)
+        
+        self.positive_attention = AttentionWithCBAM(in_channels=2048)
+        self.negative_attention = AttentionWithCBAM(in_channels=2048)
+        self.sketch_attention = AttentionWithCBAM(in_channels=2048)
+        
         self.positive_linear = nn.Linear(2048, self.args.output_size).to(device)
         self.negative_linear = nn.Linear(2048, self.args.output_size).to(device)
-        self.sample_linear = nn.Linear(2048, self.args.output_size).to(device)
+        self.sketch_linear = nn.Linear(2048, self.args.output_size).to(device)
     
     def test_forward(self, batch):            #  this is being called only during evaluation
         sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
@@ -37,13 +41,13 @@ class FGSBIR_Model(nn.Module):
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
         sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         
-        positive_feature = self.attention(positive_feature)
-        negative_feature = self.attention(negative_feature)
-        sketch_feature = self.attention(sketch_feature)
+        positive_feature = self.positive_attention(positive_feature)
+        negative_feature = self.negative_attention(negative_feature)
+        sketch_feature = self.sketch_attention(sketch_feature)
         
         positive_feature = self.positive_linear(positive_feature)
         negative_feature = self.negative_linear(negative_feature)
-        sketch_feature = self.sample_linear(sketch_feature)
+        sketch_feature = self.sketch_linear(sketch_feature)
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
