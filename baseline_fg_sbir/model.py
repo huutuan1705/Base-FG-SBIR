@@ -7,6 +7,7 @@ from torch import optim
 from tqdm import tqdm
 
 from backbones import VGG16, ResNet50, InceptionV3
+from cbam import AttentionWithCBAM
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -18,7 +19,7 @@ class FGSBIR_Model(nn.Module):
         self.sample_train_params = self.sample_embedding_network.parameters()
         self.optimizer = optim.Adam(self.sample_train_params, args.learning_rate)
         self.args = args
-        
+        self.attention = AttentionWithCBAM(in_channels=2048)
         self.positive_linear = nn.Linear(2048, self.args.output_size).to(device)
         self.negative_linear = nn.Linear(2048, self.args.output_size).to(device)
         self.sample_linear = nn.Linear(2048, self.args.output_size).to(device)
@@ -34,13 +35,17 @@ class FGSBIR_Model(nn.Module):
         
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
-        sample_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         
-        # positive_feature = self.positive_linear(positive_feature).unsqueeze(1)
-        # negative_feature = self.negative_linear(negative_feature).unsqueeze(1)
-        # sample_feature = self.sample_linear(sample_feature).unsqueeze(1)
+        positive_feature = self.attention(positive_feature)
+        negative_feature = self.attention(negative_feature)
+        sketch_feature = self.attention(sketch_feature)
+        
+        positive_feature = self.positive_linear(positive_feature)
+        negative_feature = self.negative_linear(negative_feature)
+        sketch_feature = self.sample_linear(sketch_feature)
 
-        loss = self.loss(sample_feature, positive_feature, negative_feature)
+        loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
         self.optimizer.step()
 
