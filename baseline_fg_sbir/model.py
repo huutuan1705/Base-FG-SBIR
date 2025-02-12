@@ -31,7 +31,14 @@ class FGSBIR_Model(nn.Module):
     def test_forward(self, batch):            #  this is being called only during evaluation
         sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
-        return sketch_feature.cpu(), positive_feature.cpu()
+        
+        positive_feature = self.positive_attention(positive_feature)
+        sketch_feature = self.sketch_attention(sketch_feature)
+        
+        positive_feature = self.positive_linear(positive_feature)
+        sketch_feature = self.sketch_linear(sketch_feature)
+        
+        return sketch_feature, positive_feature
         
     def train_model(self, batch):
         self.train()
