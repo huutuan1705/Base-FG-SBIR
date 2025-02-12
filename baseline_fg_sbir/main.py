@@ -89,8 +89,8 @@ if __name__ == "__main__":
         # model.negative_linear.load_state_dict(linear_state['negative_linear'])
         # model.sample_linear.load_state_dict(linear_state['sample_linear'])
         
-        print('Top 1 accuracy:  {:.3f}'.format(top1_eval))
-        print('Top 5 accuracy:  {:.3f}'.format(top5_eval))
-        print('Top 10 accuracy: {:.3f}'.format(top10_eval))
-        print('Loss:            {:.3f}'.format(loss))
+        print('Top 1 accuracy:  '.format(top1_eval))
+        print('Top 5 accuracy:  '.format(top5_eval))
+        print('Top 10 accuracy: '.format(top10_eval))
+        print('Loss:            '.format(loss))
         print("========================================")
