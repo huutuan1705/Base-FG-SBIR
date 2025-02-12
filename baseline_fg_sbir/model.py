@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 from backbones import VGG16, ResNet50, InceptionV3
 from cbam import AttentionWithCBAM
+from attention import AttentionImage
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -20,9 +21,13 @@ class FGSBIR_Model(nn.Module):
         self.optimizer = optim.Adam(self.sample_train_params, args.learning_rate)
         self.args = args
         
-        self.positive_attention = AttentionWithCBAM(in_channels=2048)
-        self.negative_attention = AttentionWithCBAM(in_channels=2048)
-        self.sketch_attention = AttentionWithCBAM(in_channels=2048)
+        # self.positive_attention = AttentionWithCBAM(in_channels=2048)
+        # self.negative_attention = AttentionWithCBAM(in_channels=2048)
+        # self.sketch_attention = AttentionWithCBAM(in_channels=2048)
+        
+        self.positive_attention = AttentionImage(input_size=2048)
+        self.negative_attention = AttentionImage(input_size=2048)
+        self.sketch_attention = AttentionImage(input_size=2048)
         
         self.positive_linear = nn.Linear(2048, self.args.output_size).to(device)
         self.negative_linear = nn.Linear(2048, self.args.output_size).to(device)

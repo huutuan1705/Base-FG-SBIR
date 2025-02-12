@@ -111,7 +111,7 @@ class AttentionWithCBAM(nn.Module):
         return out
     
 # input_tensor = torch.randn(68, 2048, 8, 8)
-# model = CBAM(gate_channels=2048)
+# model = AttentionWithCBAM(in_channels=2048)
 # output= model(input_tensor)
 
 # print("Output shape:", output.shape)  # (68, 2048, 8, 8)
