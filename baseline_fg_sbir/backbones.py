@@ -105,9 +105,9 @@ class InceptionV3(nn.Module):
         # output, _ = attention(x)
         # return output
         
-        x = F.adaptive_avg_pool2d(x, (1, 1))
+        x = F.adaptive_max_pool2d(x, (1, 1))
         x = x.view(x.size(0), -1) # (N, 2048)
-        return x
+        return F.normalize(x)
     
         # output = self.pool_method(x).view(-1, 2048)
         # return F.normalize(output)

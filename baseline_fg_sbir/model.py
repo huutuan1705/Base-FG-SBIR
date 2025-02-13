@@ -42,8 +42,8 @@ class FGSBIR_Model(nn.Module):
         sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         positive_feature = self.image_embedding_network(batch['positive_img'].to(device))
         
-        positive_feature = self.positive_attention(positive_feature)
-        sketch_feature = self.sketch_attention(sketch_feature)
+        # positive_feature = self.positive_attention(positive_feature)
+        # sketch_feature = self.sketch_attention(sketch_feature)
         
         return sketch_feature, positive_feature
         
@@ -55,9 +55,9 @@ class FGSBIR_Model(nn.Module):
         negative_feature = self.image_embedding_network(batch['negative_img'].to(device))
         sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         
-        positive_feature = self.positive_attention(positive_feature)
-        negative_feature = self.negative_attention(negative_feature)
-        sketch_feature = self.sketch_attention(sketch_feature)
+        # positive_feature = self.positive_attention(positive_feature)
+        # negative_feature = self.negative_attention(negative_feature)
+        # sketch_feature = self.sketch_attention(sketch_feature)
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
