@@ -24,7 +24,7 @@ def get_dataloader(args):
 if __name__ == "__main__":
     parsers = argparse.ArgumentParser(description='Base Fine-Grained SBIR model')
     parsers.add_argument('--dataset_name', type=str, default='ShoeV2')
-    parsers.add_argument('--backbone_name', type=str, default='InceptionV3', help='VGG16/InceptionV3/Resnet50')
+    parsers.add_argument('--backbone_name', type=str, default='InceptionV3', help='VGG16/InceptionV3/ResNet50')
     parsers.add_argument('--pool_method', type=str, default='AdaptiveAvgPool2d',
                         help='AdaptiveMaxPool2d / AdaptiveAvgPool2d / AvgPool2d')
     parsers.add_argument('--output_size', type=int, default=64)
