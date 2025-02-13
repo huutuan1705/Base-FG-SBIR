@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 from backbones import VGG16, ResNet50, InceptionV3
 from cbam import AttentionWithCBAM
-from attention import AttentionImage
+from attention import AttentionImage, AttentionBlock
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -33,9 +33,13 @@ class FGSBIR_Model(nn.Module):
         else:
             self.input_size=2048
             
-        self.positive_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
-        self.negative_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
-        self.sketch_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
+        # self.positive_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
+        # self.negative_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
+        # self.sketch_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
+        
+        self.positive_attention = AttentionBlock(input_size=self.input_size)
+        self.negative_attention = AttentionBlock(input_size=self.input_size)
+        self.sketch_attention = AttentionBlock(input_size=self.input_size)
         
         self.positive_linear = nn.Linear(in_features=self.input_size, out_features=self.args.output_size)
         self.negative_linear = nn.Linear(in_features=self.input_size, out_features=self.args.output_size)
