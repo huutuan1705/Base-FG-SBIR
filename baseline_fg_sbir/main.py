@@ -1,3 +1,4 @@
+import os
 import time
 import torch
 import argparse
@@ -9,6 +10,7 @@ from model import FGSBIR_Model
 from torch.optim.lr_scheduler import StepLR
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+os.environ['TORCH_CUDA_ARCH_LIST']
 
 def get_dataloader(args):
     dataset_train = FGSBIR_Dataset(args, mode='train')
