@@ -53,10 +53,6 @@ class FGSBIR_Model(nn.Module):
         positive_feature = self.positive_attention(positive_feature)
         negative_feature = self.negative_attention(negative_feature)
         sketch_feature = self.sketch_attention(sketch_feature)
-        
-        positive_feature = self.positive_linear(positive_feature)
-        negative_feature = self.negative_linear(negative_feature)
-        sketch_feature = self.sketch_linear(sketch_feature)
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
