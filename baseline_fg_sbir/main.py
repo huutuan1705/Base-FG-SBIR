@@ -33,6 +33,7 @@ if __name__ == "__main__":
     parsers.add_argument('--load_backbone_pretrained', type=bool, default=False)
     parsers.add_argument('--train_backbone', type=bool, default=True)
     parsers.add_argument('--use_attention', type=bool, default=False)
+    parsers.add_argument('--use_linear', type=bool, default=False)
     parsers.add_argument('--batch_size', type=int, default=16)
     parsers.add_argument('--step_size', type=int, default=100)
     parsers.add_argument('--gamma', type=float, default=0.5)
