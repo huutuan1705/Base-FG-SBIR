@@ -64,17 +64,16 @@ if __name__ == "__main__":
             if top1_eval > top1:
                 top1, top10 = top1_eval, top10_eval
                 torch.save(model.state_dict(), args.dataset_name + '_best.pth')
-                torch.save(model.sample_embedding_network.state_dict(), f"{args.dataset_name}_{args.backbone_name}.pth")
+                torch.save({
+                    'image_backbones': model.image_embedding_network.state_dict(),
+                    'sketch_backbones': model.sketch_embedding_network.state_dict()
+                }, f"{args.dataset_name}_backbones.pth")
                 torch.save({
                     'positive_attention': model.positive_attention.state_dict(),
                     'negative_attention': model.negative_attention.state_dict(),
                     'sketch_attention': model.sketch_attention.state_dict()
                 }, f"{args.dataset_name}_attentions.pth")
-                torch.save({
-                    'positive_linear': model.positive_linear.state_dict(),
-                    'negative_linear': model.negative_linear.state_dict(),
-                    'sketch_linear': model.sketch_linear.state_dict()
-                }, f"{args.dataset_name}_linears.pth")
+                
         
         # Load model
         # model = FGSBIR_Model(args)

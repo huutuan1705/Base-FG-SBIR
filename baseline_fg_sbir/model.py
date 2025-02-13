@@ -15,10 +15,13 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class FGSBIR_Model(nn.Module):
     def __init__(self, args):
         super(FGSBIR_Model, self).__init__()
-        self.sample_embedding_network = eval(args.backbone_name + "(args)")
+        self.sketch_embedding_network = eval(args.backbone_name + "(args)")
+        self.image_embedding_network = eval(args.backbone_name + "(args)")
         self.loss = nn.TripletMarginLoss(margin=args.margin)
-        self.sample_train_params = self.sample_embedding_network.parameters()
-        self.optimizer = optim.Adam(self.sample_train_params, args.learning_rate)
+        self.optimizer = optim.Adam([
+            {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
+            {'params': self.image_embedding_network.parameters(), 'lr': args.learning_rate},
+        ])
         self.args = args
         
         # self.positive_attention = AttentionWithCBAM(in_channels=2048)
@@ -29,19 +32,13 @@ class FGSBIR_Model(nn.Module):
         self.negative_attention = AttentionImage(input_size=2048)
         self.sketch_attention = AttentionImage(input_size=2048)
         
-        self.positive_linear = nn.Linear(2048, self.args.output_size).to(device)
-        self.negative_linear = nn.Linear(2048, self.args.output_size).to(device)
-        self.sketch_linear = nn.Linear(2048, self.args.output_size).to(device)
     
     def test_forward(self, batch):            #  this is being called only during evaluation
-        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
-        positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
+        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        positive_feature = self.image_embedding_network(batch['positive_img'].to(device))
         
         positive_feature = self.positive_attention(positive_feature)
         sketch_feature = self.sketch_attention(sketch_feature)
-        
-        positive_feature = self.positive_linear(positive_feature)
-        sketch_feature = self.sketch_linear(sketch_feature)
         
         return sketch_feature, positive_feature
         
@@ -49,9 +46,9 @@ class FGSBIR_Model(nn.Module):
         self.train()
         self.optimizer.zero_grad()
         
-        positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
-        negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
-        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
+        positive_feature = self.image_embedding_network(batch['positive_img'].to(device))
+        negative_feature = self.image_embedding_network(batch['negative_img'].to(device))
+        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         
         positive_feature = self.positive_attention(positive_feature)
         negative_feature = self.negative_attention(negative_feature)

@@ -105,8 +105,6 @@ class InceptionV3(nn.Module):
         # output, _ = attention(x)
         # return output
         
-        
-        
         return x
         # output = self.pool_method(x).view(-1, 2048)
         # return F.normalize(output)
