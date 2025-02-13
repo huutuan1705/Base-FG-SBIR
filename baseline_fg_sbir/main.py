@@ -29,6 +29,10 @@ if __name__ == "__main__":
                         help='AdaptiveMaxPool2d / AdaptiveAvgPool2d / AvgPool2d')
     parsers.add_argument('--output_size', type=int, default=64)
     parsers.add_argument('--root_dir', type=str, default='./../')
+    parsers.add_argument('--backbone_pretrained', type=str, default='./../')
+    parsers.add_argument('--load_backbone_pretrained', type=bool, default=False)
+    parsers.add_argument('--train_backbone', type=bool, default=True)
+    parsers.add_argument('--use_attention', type=bool, default=False)
     parsers.add_argument('--batch_size', type=int, default=16)
     parsers.add_argument('--step_size', type=int, default=100)
     parsers.add_argument('--gamma', type=float, default=0.5)
@@ -45,6 +49,11 @@ if __name__ == "__main__":
     
     model = FGSBIR_Model(args=args)
     model.to(device)
+    
+    if args.load_backbone_pretrained:
+        backbone_states = torch.load(args.backbone_pretrained)
+        model.image_embedding_network.load_state_dict(backbone_states["image_backbones"])
+        model.sketch_embedding_network.load_state_dict(backbone_states["sketch_backbones"])
     
     step_count, top1, top5, top10 = -1, 0, 0, 0
     

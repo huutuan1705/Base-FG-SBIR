@@ -15,7 +15,6 @@ class AttentionImage(nn.Module):
         return x / (norm + self.eps)
     
     def forward(self, x):
-        x = self.normalize(x)
         x = self.head_layer(x)
         embedding = self.normalize(x)
         

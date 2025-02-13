@@ -111,7 +111,10 @@ class InceptionV3(nn.Module):
     
         # output = self.pool_method(x).view(-1, 2048)
         # return F.normalize(output)
-    
+        
+    def fix_weights(self):
+        for x in self.parameters():
+            x.requires_grad = False
 # dummy_input = torch.randn(25, 3, 299, 299)
 # model = InceptionV3(None)
 # output = model(dummy_input)
