@@ -84,6 +84,12 @@ class FGSBIR_Model(nn.Module):
 
         rank = torch.zeros(len(Sketch_Name))
         Image_Feature_ALL = torch.stack(Image_Feature_ALL)
+        
+        for i in range(5):
+            print(Sketch_Name[i])
+            
+        for i in range(5):
+            print(Image_Name[i])
 
         for num, sketch_feature in enumerate(Sketch_Feature_ALL):
             s_name = Sketch_Name[num]
