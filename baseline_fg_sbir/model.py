@@ -28,9 +28,14 @@ class FGSBIR_Model(nn.Module):
         # self.negative_attention = AttentionWithCBAM(in_channels=2048)
         # self.sketch_attention = AttentionWithCBAM(in_channels=2048)
         
-        self.positive_attention = AttentionImage(input_size=2048)
-        self.negative_attention = AttentionImage(input_size=2048)
-        self.sketch_attention = AttentionImage(input_size=2048)
+        if args.backbone_name == "VGG16":
+            self.input_size=512
+        else:
+            self.input_size=2048
+            
+        self.positive_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
+        self.negative_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
+        self.sketch_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
         
     
     def test_forward(self, batch):            #  this is being called only during evaluation
