@@ -46,7 +46,8 @@ class FGSBIR_Model(nn.Module):
         self.sketch_linear = nn.Linear(in_features=self.input_size, out_features=self.args.output_size)
     
     def test_forward(self, batch):            #  this is being called only during evaluation
-        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        # sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.image_embedding_network(batch['sketch_img'].to(device))
         positive_feature = self.image_embedding_network(batch['positive_img'].to(device))
         
         if self.args.use_attention:
@@ -65,7 +66,8 @@ class FGSBIR_Model(nn.Module):
             
         positive_feature = self.image_embedding_network(batch['positive_img'].to(device))
         negative_feature = self.image_embedding_network(batch['negative_img'].to(device))
-        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        # sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.image_embedding_network(batch['sketch_img'].to(device))
         
         if self.args.use_attention:
             positive_feature = self.positive_attention(positive_feature)
