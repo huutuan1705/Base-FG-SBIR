@@ -8,14 +8,14 @@ from tqdm import tqdm
 
 from backbones import VGG16, ResNet50, InceptionV3
 from cbam import AttentionWithCBAM
-from attention import AttentionImage, AttentionBlock
+from attention import AttentionImage, AttentionBlock, Attention_global, Linear_global
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class FGSBIR_Model(nn.Module):
     def __init__(self, args):
         super(FGSBIR_Model, self).__init__()
-        self.sketch_embedding_network = eval(args.backbone_name + "(args)")
+        # self.sketch_embedding_network = eval(args.backbone_name + "(args)")
         self.image_embedding_network = eval(args.backbone_name + "(args)")
         self.loss = nn.TripletMarginLoss(margin=args.margin)
         self.optimizer = optim.Adam([
@@ -37,22 +37,30 @@ class FGSBIR_Model(nn.Module):
         # self.negative_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
         # self.sketch_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
         
-        self.positive_attention = AttentionBlock(in_channels=self.input_size)
-        self.negative_attention = AttentionBlock(in_channels=self.input_size)
-        self.sketch_attention = AttentionBlock(in_channels=self.input_size)
+        # self.positive_attention = AttentionBlock(in_channels=self.input_size)
+        # self.negative_attention = AttentionBlock(in_channels=self.input_size)
+        # self.sketch_attention = AttentionBlock(in_channels=self.input_size)
         
-        self.positive_linear = nn.Linear(in_features=self.input_size, out_features=self.args.output_size)
-        self.negative_linear = nn.Linear(in_features=self.input_size, out_features=self.args.output_size)
-        self.sketch_linear = nn.Linear(in_features=self.input_size, out_features=self.args.output_size)
+        self.positive_attention = Attention_global()
+        # self.negative_attention = Attention_global()
+        # self.sketch_attention = Attention_global()
+        
+        self.positive_linear = Linear_global(out_features=self.args.output_size)
+        # self.negative_linear = Linear_global(out_features=self.args.output_size)
+        # self.sketch_linear = Linear_global(out_features=self.args.output_size)
     
-    def test_forward(self, batch):            #  this is being called only during evaluation
+    def init_weights(m):
+        if type(m) == nn.Linear or type(m) == nn.Conv2d:
+            nn.init.kaiming_normal_(m.weight)
+                
+    def test_forward(self, batch):
         # sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         sketch_feature = self.image_embedding_network(batch['sketch_img'].to(device))
         positive_feature = self.image_embedding_network(batch['positive_img'].to(device))
         
         if self.args.use_attention:
             positive_feature = self.positive_attention(positive_feature)
-            sketch_feature = self.sketch_attention(sketch_feature)
+            sketch_feature = self.positive_attention(sketch_feature)
         
         return sketch_feature, positive_feature
         
@@ -61,7 +69,7 @@ class FGSBIR_Model(nn.Module):
         self.optimizer.zero_grad()
         
         if self.args.train_backbone == False:
-            self.sketch_embedding_network.fix_weights()
+            self.image_embedding_network.fix_weights()
             self.image_embedding_network.fix_weights()
             
         positive_feature = self.image_embedding_network(batch['positive_img'].to(device))
@@ -71,13 +79,13 @@ class FGSBIR_Model(nn.Module):
         
         if self.args.use_attention:
             positive_feature = self.positive_attention(positive_feature)
-            negative_feature = self.negative_attention(negative_feature)
-            sketch_feature = self.sketch_attention(sketch_feature)
+            negative_feature = self.positive_attention(negative_feature)
+            sketch_feature = self.positive_attention(sketch_feature)
             
         if self.args.use_linear:
             positive_feature = self.positive_linear(positive_feature)
-            negative_feature = self.negative_linear(negative_feature)
-            sketch_feature = self.sketch_linear(sketch_feature)
+            negative_feature = self.positive_linear(negative_feature)
+            sketch_feature = self.positive_linear(sketch_feature)
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
