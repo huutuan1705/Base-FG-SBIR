@@ -49,9 +49,9 @@ class FGSBIR_Model(nn.Module):
         sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         positive_feature = self.image_embedding_network(batch['positive_img'].to(device))
         
-        # if self.args.use_attention:
-        #     positive_feature = self.positive_attention(positive_feature)
-        #     sketch_feature = self.sketch_attention(sketch_feature)
+        if self.args.use_attention:
+            positive_feature = self.positive_attention(positive_feature)
+            sketch_feature = self.sketch_attention(sketch_feature)
         
         return sketch_feature, positive_feature
         
@@ -59,23 +59,23 @@ class FGSBIR_Model(nn.Module):
         self.train()
         self.optimizer.zero_grad()
         
-        # if self.args.train_backbone == False:
-        #     self.sketch_embedding_network.fix_weights()
-        #     self.image_embedding_network.fix_weights()
+        if self.args.train_backbone == False:
+            self.sketch_embedding_network.fix_weights()
+            self.image_embedding_network.fix_weights()
             
         positive_feature = self.image_embedding_network(batch['positive_img'].to(device))
         negative_feature = self.image_embedding_network(batch['negative_img'].to(device))
         sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         
-        # if self.args.use_attention:
-        #     positive_feature = self.positive_attention(positive_feature)
-        #     negative_feature = self.negative_attention(negative_feature)
-        #     sketch_feature = self.sketch_attention(sketch_feature)
+        if self.args.use_attention:
+            positive_feature = self.positive_attention(positive_feature)
+            negative_feature = self.negative_attention(negative_feature)
+            sketch_feature = self.sketch_attention(sketch_feature)
             
-        # if self.args.use_linear:
-        #     positive_feature = self.positive_linear(positive_feature)
-        #     negative_feature = self.negative_linear(negative_feature)
-        #     sketch_feature = self.sketch_linear(sketch_feature)
+        if self.args.use_linear:
+            positive_feature = self.positive_linear(positive_feature)
+            negative_feature = self.negative_linear(negative_feature)
+            sketch_feature = self.sketch_linear(sketch_feature)
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
