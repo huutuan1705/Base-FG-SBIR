@@ -51,8 +51,7 @@ if __name__ == "__main__":
     
     if args.load_backbone_pretrained:
         backbone_states = torch.load(args.backbone_pretrained)
-        model.image_embedding_network.load_state_dict(backbone_states["image_backbones"])
-        model.sketch_embedding_network.load_state_dict(backbone_states["sketch_backbones"])
+        model.sample_train_params.load_state_dict(backbone_states["image_backbones"])
     
     step_count, top1, top5, top10 = -1, 0, 0, 0
     
@@ -71,18 +70,11 @@ if __name__ == "__main__":
             model.eval()
             top1_eval, top5_eval, top10_eval = model.evaluate(dataloader_test)
             
-            if top1_eval > top1 or top10_eval > top10:
-                top1, top10 = top1_eval, top10_eval
-                torch.save(model.state_dict(), args.dataset_name + '_best.pth')
-                torch.save({
-                    'image_backbones': model.image_embedding_network.state_dict(),
-                    # 'sketch_backbones': model.sketch_embedding_network.state_dict()
-                }, f"{args.dataset_name}_backbones.pth")
-                torch.save({
-                    'positive_attention': model.positive_attention.state_dict(),
-                    # 'negative_attention': model.negative_attention.state_dict(),
-                    # 'sketch_attention': model.sketch_attention.state_dict()
-                }, f"{args.dataset_name}_attentions.pth")
+            if top1_eval > top1:
+                top1, top5, top10 = top1_eval, top5_eval, top10_eval
+                torch.save(model.sample_embedding_network.state_dict(), args.backbone_name + '_' + args.dataset_name + '_best.pth')
+                torch.save(model.attention.state_dict(), args.dataset_name + '_' + str(args.feature_num) + '_attention.pth')
+                torch.save(model.linear.state_dict(), args.dataset_name + '_' + str(args.feature_num) + '_linear.pth')
                 
         
         # Load model
