@@ -73,8 +73,8 @@ if __name__ == "__main__":
             if top1_eval > top1:
                 top1, top5, top10 = top1_eval, top5_eval, top10_eval
                 torch.save(model.sample_embedding_network.state_dict(), args.backbone_name + '_' + args.dataset_name + '_best.pth')
-                torch.save(model.attention.state_dict(), args.dataset_name + '_' + str(args.feature_num) + '_attention.pth')
-                torch.save(model.linear.state_dict(), args.dataset_name + '_' + str(args.feature_num) + '_linear.pth')
+                torch.save(model.attention.state_dict(), args.dataset_name + '_' + str(args.output_size) + '_attention.pth')
+                torch.save(model.linear.state_dict(), args.dataset_name + '_' + str(args.output_size) + '_linear.pth')
                 
         
         # Load model
