@@ -30,6 +30,8 @@ if __name__ == "__main__":
     parsers.add_argument('--root_dir', type=str, default='./../')
     parsers.add_argument('--backbone_pretrained', type=str, default='./../')
     parsers.add_argument('--load_backbone_pretrained', type=bool, default=False)
+    parsers.add_argument('--pretrained', type=str, default='./../')
+    parsers.add_argument('--load_pretrained', type=bool, default=False)
     parsers.add_argument('--train_backbone', type=bool, default=True)
     parsers.add_argument('--use_attention', type=bool, default=False)
     parsers.add_argument('--use_linear', type=bool, default=False)
@@ -48,6 +50,8 @@ if __name__ == "__main__":
     
     model = FGSBIR_Model(args=args)
     model.to(device)
+    if args.load_pretrained:
+        model.load_state_dict(torch.load(args.pretrained))
     
     if args.load_backbone_pretrained:
         backbone_states = torch.load(args.backbone_pretrained)
