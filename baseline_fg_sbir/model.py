@@ -28,7 +28,7 @@ class FGSBIR_Model(nn.Module):
         self.attention.apply(init_weights)
         self.attn_train_global_params = self.attention.parameters()
         
-        self.linear = Linear_global(out_features=self.args.output_size)
+        self.linear = Linear_global(feature_num=self.args.output_size)
         self.linear.apply(init_weights)
         self.linear_train_local_params = self.linear.parameters()
         
