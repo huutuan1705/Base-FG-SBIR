@@ -61,7 +61,7 @@ class InceptionV3(nn.Module):
         self.Mixed_7b = backbone.Mixed_7b
         self.Mixed_7c = backbone.Mixed_7c
         self.pool_method =  nn.AdaptiveMaxPool2d(1) # as default
-
+        self.args = args
 
     def forward(self, x):
         # N x 3 x 299 x 299
@@ -100,19 +100,13 @@ class InceptionV3(nn.Module):
         x = self.Mixed_7b(x)
         # N x 2048 x 8 x 8
         x = self.Mixed_7c(x)
-        
-        # return x
-        
-        # attention = AttentionImage(input_size=x.shape[1], hidden_layer=x.shape[1]).to(device)
-        # output, _ = attention(x)
-        # return output
-        
-        x = F.adaptive_max_pool2d(x, (1, 1))
-        x = x.view(x.size(0), -1) # (N, 2048)
-        return F.normalize(x)
-    
-        # output = self.pool_method(x).view(-1, 2048)
-        # return F.normalize(output)
+
+        if self.args.use_attention == False:
+            x = F.adaptive_max_pool2d(x, (1, 1))
+            x = x.view(x.size(0), -1) # (N, 2048)
+            return F.normalize(x)
+
+        return x
         
     def fix_weights(self):
         for x in self.parameters():
