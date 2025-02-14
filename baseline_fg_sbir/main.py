@@ -16,7 +16,7 @@ def get_dataloader(args):
     dataloader_train = data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=int(args.threads))
     
     dataset_test = FGSBIR_Dataset(args, mode='test')
-    dataloader_test = data.DataLoader(dataset_test, batch_size=1, shuffle=False, num_workers=int(args.threads))
+    dataloader_test = data.DataLoader(dataset_test, batch_size=args.test_batch_size, shuffle=False, num_workers=int(args.threads))
     
     return dataloader_train, dataloader_test
 
@@ -36,6 +36,7 @@ if __name__ == "__main__":
     parsers.add_argument('--use_attention', type=bool, default=False)
     parsers.add_argument('--use_linear', type=bool, default=False)
     parsers.add_argument('--batch_size', type=int, default=16)
+    parsers.add_argument('--test_batch_size', type=int, default=17)
     parsers.add_argument('--step_size', type=int, default=100)
     parsers.add_argument('--gamma', type=float, default=0.5)
     parsers.add_argument('--margin', type=float, default=0.3)
