@@ -51,10 +51,10 @@ if __name__ == "__main__":
     model = FGSBIR_Model(args=args)
     model.to(device)
     
-    if args.load_backbone_pretrained:
-        backbone_states = torch.load(args.backbone_pretrained)
-        model.image_embedding_network.load_state_dict(backbone_states["image_backbones"])
-        model.sketch_embedding_network.load_state_dict(backbone_states["sketch_backbones"])
+    # if args.load_backbone_pretrained:
+    #     backbone_states = torch.load(args.backbone_pretrained)
+    #     model.image_embedding_network.load_state_dict(backbone_states["image_backbones"])
+    #     model.sketch_embedding_network.load_state_dict(backbone_states["sketch_backbones"])
     
     step_count, top1, top5, top10 = -1, 0, 0, 0
     
