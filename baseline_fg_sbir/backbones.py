@@ -101,15 +101,15 @@ class InceptionV3(nn.Module):
         # N x 2048 x 8 x 8
         x = self.Mixed_7c(x)
         
-        return x
+        # return x
         
         # attention = AttentionImage(input_size=x.shape[1], hidden_layer=x.shape[1]).to(device)
         # output, _ = attention(x)
         # return output
         
-        # x = F.adaptive_max_pool2d(x, (1, 1))
-        # x = x.view(x.size(0), -1) # (N, 2048)
-        # return F.normalize(x)
+        x = F.adaptive_max_pool2d(x, (1, 1))
+        x = x.view(x.size(0), -1) # (N, 2048)
+        return F.normalize(x)
     
         # output = self.pool_method(x).view(-1, 2048)
         # return F.normalize(output)
