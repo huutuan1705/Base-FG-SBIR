@@ -16,8 +16,10 @@ class FGSBIR_Model(nn.Module):
     def __init__(self, args):
         super(FGSBIR_Model, self).__init__()
         self.sample_embedding_network = eval(args.backbone_name + "(args)")
+        self.sketch_embedding_network = eval(args.backbone_name + "(args)")
         self.loss = nn.TripletMarginLoss(margin=args.margin)        
         self.sample_train_params = self.sample_embedding_network.parameters()
+        self.sketch_train_params = self.sketch_embedding_network.parameters()
         self.args = args
         
         def init_weights(m):
@@ -26,30 +28,42 @@ class FGSBIR_Model(nn.Module):
         
         self.attention = Attention_global()
         self.attention.apply(init_weights)
-        self.attn_train_global_params = self.attention.parameters()
+        self.attn_params = self.attention.parameters()
+        
+        self.sketch_attention = Attention_global()
+        self.sketch_attention.apply(init_weights)
+        self.sketch_attn_params = self.attention.parameters()
         
         self.linear = Linear_global(feature_num=self.args.output_size)
         self.linear.apply(init_weights)
-        self.linear_train_local_params = self.linear.parameters()
+        self.linear_params = self.linear.parameters()
+        
+        self.sketch_linear = Linear_global(feature_num=self.args.output_size)
+        self.sketch_linear.apply(init_weights)
+        self.sketch_linear_params = self.linear.parameters()
         
         self.optimizer = optim.Adam(self.sample_train_params, self.args.learning_rate)
+        self.optimizer = optim.Adam(self.sketch_train_params, self.args.learning_rate)
         self.optimizer = optim.Adam([
             {'params': filter(lambda param: param.requires_grad, self.sample_train_params), 'lr': self.args.learning_rate},
-            {'params': self.attn_train_global_params, 'lr': self.args.learning_rate},
-            {'params': self.linear_train_local_params, 'lr': self.args.learning_rate},])
+            {'params': filter(lambda param: param.requires_grad, self.sketch_train_params), 'lr': self.args.learning_rate},
+            {'params': self.attn_params, 'lr': self.args.learning_rate},
+            {'params': self.linear_params, 'lr': self.args.learning_rate},
+            {'params': self.sketch_attn_params, 'lr': self.args.learning_rate},
+            {'params': self.sketch_linear_params, 'lr': self.args.learning_rate},])
         
     def test_forward(self, batch):
         # sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
-        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         
         if self.args.use_attention:
             positive_feature = self.attention(positive_feature)
-            sketch_feature = self.attention(sketch_feature)
+            sketch_feature = self.sketch_attention(sketch_feature)
         
         if self.args.use_linear:
             positive_feature = self.linear(positive_feature)
-            sketch_feature = self.linear(sketch_feature)
+            sketch_feature = self.sketch_linear(sketch_feature)
             
         return sketch_feature, positive_feature
         
@@ -59,17 +73,17 @@ class FGSBIR_Model(nn.Module):
             
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
-        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         
         if self.args.use_attention:
             positive_feature = self.attention(positive_feature)
             negative_feature = self.attention(negative_feature)
-            sketch_feature = self.attention(sketch_feature)
+            sketch_feature = self.sketch_attention(sketch_feature)
             
         if self.args.use_linear:
             positive_feature = self.linear(positive_feature)
             negative_feature = self.linear(negative_feature)
-            sketch_feature = self.linear(sketch_feature)
+            sketch_feature = self.sketch_linear(sketch_feature)
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
