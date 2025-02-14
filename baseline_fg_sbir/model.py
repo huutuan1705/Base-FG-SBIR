@@ -32,7 +32,7 @@ class FGSBIR_Model(nn.Module):
         
         self.sketch_attention = Attention_global()
         self.sketch_attention.apply(init_weights)
-        self.sketch_attn_params = self.attention.parameters()
+        self.sketch_attn_params = self.sketch_attention.parameters()
         
         self.linear = Linear_global(feature_num=self.args.output_size)
         self.linear.apply(init_weights)
@@ -40,7 +40,7 @@ class FGSBIR_Model(nn.Module):
         
         self.sketch_linear = Linear_global(feature_num=self.args.output_size)
         self.sketch_linear.apply(init_weights)
-        self.sketch_linear_params = self.linear.parameters()
+        self.sketch_linear_params = self.sketch_linear.parameters()
         
         self.optimizer = optim.Adam(self.sample_train_params, self.args.learning_rate)
         self.optimizer = optim.Adam(self.sketch_train_params, self.args.learning_rate)
