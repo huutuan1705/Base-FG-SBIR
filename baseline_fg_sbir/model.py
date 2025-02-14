@@ -15,77 +15,61 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class FGSBIR_Model(nn.Module):
     def __init__(self, args):
         super(FGSBIR_Model, self).__init__()
-        # self.sketch_embedding_network = eval(args.backbone_name + "(args)")
-        self.image_embedding_network = eval(args.backbone_name + "(args)")
-        self.loss = nn.TripletMarginLoss(margin=args.margin)
-        self.optimizer = optim.Adam([
-            {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
-            {'params': self.image_embedding_network.parameters(), 'lr': args.learning_rate},
-        ])
+        self.sample_embedding_network = eval(args.backbone_name + "(args)")
+        self.loss = nn.TripletMarginLoss(margin=args.margin)        
+        self.sample_train_params = self.sample_embedding_network.parameters()
         self.args = args
         
-        # self.positive_attention = AttentionWithCBAM(in_channels=2048)
-        # self.negative_attention = AttentionWithCBAM(in_channels=2048)
-        # self.sketch_attention = AttentionWithCBAM(in_channels=2048)
+        def init_weights(m):
+            if type(m) == nn.Linear or type(m) == nn.Conv2d:
+                nn.init.kaiming_normal_(m.weight)
         
-        if args.backbone_name == "VGG16":
-            self.input_size=512
-        else:
-            self.input_size=2048
-            
-        # self.positive_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
-        # self.negative_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
-        # self.sketch_attention = AttentionImage(input_size=self.input_size, output_size=self.args.output_size)
+        self.attention = Attention_global()
+        self.attention.apply(init_weights)
+        self.attn_train_global_params = self.attention.parameters()
         
-        # self.positive_attention = AttentionBlock(in_channels=self.input_size)
-        # self.negative_attention = AttentionBlock(in_channels=self.input_size)
-        # self.sketch_attention = AttentionBlock(in_channels=self.input_size)
+        self.linear = Linear_global(out_features=self.args.output_size)
+        self.linear.apply(init_weights)
+        self.linear_train_local_params = self.linear.parameters()
         
-        self.positive_attention = Attention_global()
-        # self.negative_attention = Attention_global()
-        # self.sketch_attention = Attention_global()
+        self.optimizer = optim.Adam(self.sample_train_params, self.args.learning_rate)
+        self.optimizer = optim.Adam([
+            {'params': filter(lambda param: param.requires_grad, self.sample_train_params), 'lr': self.args.learning_rate},
+            {'params': self.attn_train_global_params, 'lr': self.args.learning_rate},
+            {'params': self.linear_train_local_params, 'lr': self.args.learning_rate},])
         
-        self.positive_linear = Linear_global(out_features=self.args.output_size)
-        # self.negative_linear = Linear_global(out_features=self.args.output_size)
-        # self.sketch_linear = Linear_global(out_features=self.args.output_size)
-    
-    def init_weights(m):
-        if type(m) == nn.Linear or type(m) == nn.Conv2d:
-            nn.init.kaiming_normal_(m.weight)
-                
     def test_forward(self, batch):
         # sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
-        sketch_feature = self.image_embedding_network(batch['sketch_img'].to(device))
-        positive_feature = self.image_embedding_network(batch['positive_img'].to(device))
+        sketch_feature = self.sample_train_params(batch['sketch_img'].to(device))
+        positive_feature = self.sample_train_params(batch['positive_img'].to(device))
         
         if self.args.use_attention:
-            positive_feature = self.positive_attention(positive_feature)
-            sketch_feature = self.positive_attention(sketch_feature)
+            positive_feature = self.attention(positive_feature)
+            sketch_feature = self.attention(sketch_feature)
         
+        if self.args.use_linear:
+            positive_feature = self.linear(positive_feature)
+            sketch_feature = self.linear(sketch_feature)
+            
         return sketch_feature, positive_feature
         
     def train_model(self, batch):
         self.train()
         self.optimizer.zero_grad()
-        
-        if self.args.train_backbone == False:
-            self.image_embedding_network.fix_weights()
-            self.image_embedding_network.fix_weights()
             
-        positive_feature = self.image_embedding_network(batch['positive_img'].to(device))
-        negative_feature = self.image_embedding_network(batch['negative_img'].to(device))
-        # sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
-        sketch_feature = self.image_embedding_network(batch['sketch_img'].to(device))
+        positive_feature = self.sample_train_params(batch['positive_img'].to(device))
+        negative_feature = self.sample_train_params(batch['negative_img'].to(device))
+        sketch_feature = self.sample_train_params(batch['sketch_img'].to(device))
         
         if self.args.use_attention:
-            positive_feature = self.positive_attention(positive_feature)
-            negative_feature = self.positive_attention(negative_feature)
-            sketch_feature = self.positive_attention(sketch_feature)
+            positive_feature = self.attention(positive_feature)
+            negative_feature = self.attention(negative_feature)
+            sketch_feature = self.attention(sketch_feature)
             
         if self.args.use_linear:
-            positive_feature = self.positive_linear(positive_feature)
-            negative_feature = self.positive_linear(negative_feature)
-            sketch_feature = self.positive_linear(sketch_feature)
+            positive_feature = self.linear(positive_feature)
+            negative_feature = self.linear(negative_feature)
+            sketch_feature = self.linear(sketch_feature)
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
@@ -112,12 +96,6 @@ class FGSBIR_Model(nn.Module):
 
         rank = torch.zeros(len(Sketch_Name))
         Image_Feature_ALL = torch.stack(Image_Feature_ALL)
-        
-        # for i in range(5):
-        #     print(Sketch_Name[i])
-            
-        # for i in range(5):
-        #     print(Image_Name[i])
 
         for num, sketch_feature in enumerate(Sketch_Feature_ALL):
             s_name = Sketch_Name[num]
