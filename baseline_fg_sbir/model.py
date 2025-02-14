@@ -57,9 +57,9 @@ class FGSBIR_Model(nn.Module):
         self.train()
         self.optimizer.zero_grad()
             
-        positive_feature = self.sample_embedding_network(batch['positive_img'].to(device), 1)
-        negative_feature = self.sample_embedding_network(batch['negative_img'].to(device), 1)
-        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device), 1)
+        positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
+        negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
+        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         
         if self.args.use_attention:
             positive_feature = self.attention(positive_feature)
