@@ -54,8 +54,8 @@ if __name__ == "__main__":
     model.to(device)
     if args.load_pretrained:
         backbone_states = torch.load(args.backbone_pretrained)
-        model.sample_train_params.load_state_dict(backbone_states["sample_embedding_network"])
-        model.sketch_train_params.load_state_dict(backbone_states["sample_embedding_network"])
+        model.sample_embedding_network.load_state_dict(backbone_states["sample_embedding_network"])
+        model.sketch_embedding_network.load_state_dict(backbone_states["sample_embedding_network"])
         
         attention_states = torch.load(args.attention_pretrained)
         model.attention.load_state_dict(backbone_states["attention"])
