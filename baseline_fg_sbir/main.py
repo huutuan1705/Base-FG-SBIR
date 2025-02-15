@@ -30,7 +30,8 @@ if __name__ == "__main__":
     parsers.add_argument('--root_dir', type=str, default='./../')
     parsers.add_argument('--backbone_pretrained', type=str, default='./../')
     parsers.add_argument('--load_backbone_pretrained', type=bool, default=False)
-    parsers.add_argument('--pretrained', type=str, default='./../')
+    parsers.add_argument('--attention_pretrained', type=str, default='./../')
+    parsers.add_argument('--linear_pretrained', type=str, default='./../')
     parsers.add_argument('--load_pretrained', type=bool, default=False)
     parsers.add_argument('--train_backbone', type=bool, default=True)
     parsers.add_argument('--use_attention', type=bool, default=False)
@@ -52,8 +53,19 @@ if __name__ == "__main__":
     model = FGSBIR_Model(args=args)
     model.to(device)
     if args.load_pretrained:
-        model.load_state_dict(torch.load(args.pretrained))
-    
+        backbone_states = torch.load(args.backbone_pretrained)
+        model.sample_train_params.load_state_dict(backbone_states["sample_embedding_network"])
+        model.sketch_train_params.load_state_dict(backbone_states["sample_embedding_network"])
+        
+        attention_states = torch.load(args.attention_pretrained)
+        model.attention.load_state_dict(backbone_states["attention"])
+        model.sketch_attention.load_state_dict(backbone_states["sketch_attention"])
+        
+        linear_states = torch.load(args.linear_pretrained)
+        model.linear.load_state_dict(backbone_states["attention"])
+        model.sketch_linear.load_state_dict(backbone_states["sketch_attention"])
+        
+        
     # if args.load_backbone_pretrained:
     #     backbone_states = torch.load(args.backbone_pretrained)
     #     model.sample_train_params.load_state_dict(backbone_states["sample_embedding_network"])
@@ -78,6 +90,7 @@ if __name__ == "__main__":
             
             if top1_eval > top1:
                 top1, top5, top10 = top1_eval, top5_eval, top10_eval
+                torch.save(model.state_dict(), "best_model.pth")
                 torch.save(
                     {
                         'sample_embedding_network': model.sample_embedding_network.state_dict(),
@@ -91,7 +104,7 @@ if __name__ == "__main__":
                             'sketch_linear': model.sketch_linear.state_dict()
                             }, args.dataset_name + '_' + str(args.output_size) + '_linear.pth')
                 
-        
+            torch.save(model.state_dict(), "last_model.pth")
         # Load model
         # model = FGSBIR_Model(args)
         # model.load_state_dict(torch.load(f"{args.backbone_name}_{args.dataset_name}_best.pth"))
