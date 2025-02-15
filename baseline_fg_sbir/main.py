@@ -54,9 +54,10 @@ if __name__ == "__main__":
     if args.load_pretrained:
         model.load_state_dict(torch.load(args.pretrained))
     
-    if args.load_backbone_pretrained:
-        backbone_states = torch.load(args.backbone_pretrained)
-        model.sample_train_params.load_state_dict(backbone_states["image_backbones"])
+    # if args.load_backbone_pretrained:
+    #     backbone_states = torch.load(args.backbone_pretrained)
+    #     model.sample_train_params.load_state_dict(backbone_states["sample_embedding_network"])
+    #     model.sketch_train_params.load_state_dict(backbone_states["sample_embedding_network"])
     
     step_count, top1, top5, top10 = -1, 0, 0, 0
     
