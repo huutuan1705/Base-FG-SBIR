@@ -26,21 +26,23 @@ class FGSBIR_Model(nn.Module):
                 nn.init.kaiming_normal_(m.weight)
         
         self.attention = Attention_global()
-        self.attention.apply(init_weights)
         self.attn_params = self.attention.parameters()
         
         self.sketch_attention = Attention_global()
-        self.sketch_attention.apply(init_weights)
         self.sketch_attn_params = self.sketch_attention.parameters()
         
         self.linear = Linear_global(feature_num=self.args.output_size)
-        self.linear.apply(init_weights)
         self.linear_params = self.linear.parameters()
         
         self.sketch_linear = Linear_global(feature_num=self.args.output_size)
-        self.sketch_linear.apply(init_weights)
         self.sketch_linear_params = self.sketch_linear.parameters()
-    
+
+        if self.args.use_kaiming_init:
+            self.attention.apply(init_weights)
+            self.sketch_attention.apply(init_weights)
+            self.linear.apply(init_weights)
+            self.sketch_linear.apply(init_weights)
+            
         self.optimizer = optim.Adam([
             {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
