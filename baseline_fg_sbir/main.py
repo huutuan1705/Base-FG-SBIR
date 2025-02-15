@@ -55,23 +55,6 @@ if __name__ == "__main__":
     model.to(device)
     if args.load_pretrained:
         model.load_state_dict(torch.load(args.pretrained))
-        # backbone_states = torch.load(args.backbone_pretrained)
-        # model.sample_embedding_network.load_state_dict(backbone_states["sample_embedding_network"])
-        # model.sketch_embedding_network.load_state_dict(backbone_states["sample_embedding_network"])
-        
-        # attention_states = torch.load(args.attention_pretrained)
-        # model.attention.load_state_dict(attention_states["attention"])
-        # model.sketch_attention.load_state_dict(attention_states["sketch_attention"])
-        
-        # linear_states = torch.load(args.linear_pretrained)
-        # model.linear.load_state_dict(linear_states["linear"])
-        # model.sketch_linear.load_state_dict(linear_states["sketch_linear"])
-        
-        
-    # if args.load_backbone_pretrained:
-    #     backbone_states = torch.load(args.backbone_pretrained)
-    #     model.sample_train_params.load_state_dict(backbone_states["sample_embedding_network"])
-    #     model.sketch_train_params.load_state_dict(backbone_states["sample_embedding_network"])
     
     step_count, top1, top5, top10 = -1, 0, 0, 0
     
