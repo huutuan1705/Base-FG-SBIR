@@ -88,7 +88,7 @@ if __name__ == "__main__":
             model.eval()
             top1_eval, top5_eval, top10_eval = model.evaluate(dataloader_test)
             
-            if top1_eval > top1:
+            if top10_eval > top10:
                 top1, top5, top10 = top1_eval, top5_eval, top10_eval
                 torch.save(model.state_dict(), "best_model.pth")
                 torch.save(
