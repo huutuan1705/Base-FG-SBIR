@@ -7,8 +7,7 @@ from torch import optim
 from tqdm import tqdm
 
 from backbones import VGG16, ResNet50, InceptionV3
-from cbam import AttentionWithCBAM
-from attention import AttentionImage, AttentionBlock, Attention_global, Linear_global
+from attention import Attention_global, Linear_global
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
