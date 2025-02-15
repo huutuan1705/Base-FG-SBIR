@@ -58,12 +58,12 @@ if __name__ == "__main__":
         model.sketch_embedding_network.load_state_dict(backbone_states["sample_embedding_network"])
         
         attention_states = torch.load(args.attention_pretrained)
-        model.attention.load_state_dict(backbone_states["attention"])
-        model.sketch_attention.load_state_dict(backbone_states["sketch_attention"])
+        model.attention.load_state_dict(attention_states["attention"])
+        model.sketch_attention.load_state_dict(attention_states["sketch_attention"])
         
         linear_states = torch.load(args.linear_pretrained)
-        model.linear.load_state_dict(backbone_states["attention"])
-        model.sketch_linear.load_state_dict(backbone_states["sketch_attention"])
+        model.linear.load_state_dict(linear_states["linear"])
+        model.sketch_linear.load_state_dict(linear_states["sketch_linear"])
         
         
     # if args.load_backbone_pretrained:
