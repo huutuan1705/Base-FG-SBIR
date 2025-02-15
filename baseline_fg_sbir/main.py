@@ -32,6 +32,7 @@ if __name__ == "__main__":
     parsers.add_argument('--load_backbone_pretrained', type=bool, default=False)
     parsers.add_argument('--attention_pretrained', type=str, default='./../')
     parsers.add_argument('--linear_pretrained', type=str, default='./../')
+    parsers.add_argument('--pretrained', type=str, default='./../')
     parsers.add_argument('--load_pretrained', type=bool, default=False)
     parsers.add_argument('--train_backbone', type=bool, default=True)
     parsers.add_argument('--use_attention', type=bool, default=False)
@@ -53,17 +54,18 @@ if __name__ == "__main__":
     model = FGSBIR_Model(args=args)
     model.to(device)
     if args.load_pretrained:
-        backbone_states = torch.load(args.backbone_pretrained)
-        model.sample_embedding_network.load_state_dict(backbone_states["sample_embedding_network"])
-        model.sketch_embedding_network.load_state_dict(backbone_states["sample_embedding_network"])
+        model.load_state_dict(args.pretrained)
+        # backbone_states = torch.load(args.backbone_pretrained)
+        # model.sample_embedding_network.load_state_dict(backbone_states["sample_embedding_network"])
+        # model.sketch_embedding_network.load_state_dict(backbone_states["sample_embedding_network"])
         
-        attention_states = torch.load(args.attention_pretrained)
-        model.attention.load_state_dict(attention_states["attention"])
-        model.sketch_attention.load_state_dict(attention_states["sketch_attention"])
+        # attention_states = torch.load(args.attention_pretrained)
+        # model.attention.load_state_dict(attention_states["attention"])
+        # model.sketch_attention.load_state_dict(attention_states["sketch_attention"])
         
-        linear_states = torch.load(args.linear_pretrained)
-        model.linear.load_state_dict(linear_states["linear"])
-        model.sketch_linear.load_state_dict(linear_states["sketch_linear"])
+        # linear_states = torch.load(args.linear_pretrained)
+        # model.linear.load_state_dict(linear_states["linear"])
+        # model.sketch_linear.load_state_dict(linear_states["sketch_linear"])
         
         
     # if args.load_backbone_pretrained:
