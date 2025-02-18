@@ -21,7 +21,8 @@ class Attention_global(nn.Module):
         fatt = backbone_tensor*backbone_tensor_1
         fatt1 = backbone_tensor +fatt
         fatt1 = self.pool_method(fatt1).view(-1, 2048)
-        return  F.normalize(fatt1)
+        # return  F.normalize(fatt1)
+        return fatt1
 
 class Linear_global(nn.Module):
     def __init__(self, feature_num):
