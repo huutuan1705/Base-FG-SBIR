@@ -21,8 +21,8 @@ class Attention_global(nn.Module):
         fatt = backbone_tensor*backbone_tensor_1
         fatt1 = backbone_tensor +fatt
         fatt1 = self.pool_method(fatt1).view(-1, 2048)
-        # return  F.normalize(fatt1)
-        return fatt1
+        return  F.normalize(fatt1)
+        # return fatt1
 
 class Linear_global(nn.Module):
     def __init__(self, feature_num):
@@ -30,8 +30,8 @@ class Linear_global(nn.Module):
         self.head_layer = nn.Linear(2048, feature_num)
     
     def forward(self, x):
-        # return F.normalize(self.head_layer(x))
-        return self.head_layer(x)
+        return F.normalize(self.head_layer(x))
+        # return self.head_layer(x)
     
 # input_tensor = torch.randn(68, 2048, 8, 8)
 # model = Attention_global()
