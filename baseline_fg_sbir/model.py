@@ -125,9 +125,9 @@ class FGSBIR_Model(nn.Module):
             sketch_query_name = '_'.join(s_name.split('/')[-1].split('_')[:-1])
             position_query = Image_Name.index(sketch_query_name)
 
-            print("sketch_feature.unsqueeze(0) shape: ", sketch_feature.unsqueeze(0).shape)
-            print("Image_Feature_ALL shape: ", Image_Feature_ALL.shape)
-            print("Image_Feature_ALL[position_query].unsqueeze(0) shape: ", Image_Feature_ALL[position_query].unsqueeze(0).shape)
+            print("sketch_feature.unsqueeze(0) shape: ", sketch_feature.unsqueeze(0).shape) #[1, 64]
+            print("Image_Feature_ALL shape: ", Image_Feature_ALL.shape) #[200, 64]
+            print("Image_Feature_ALL[position_query].unsqueeze(0) shape: ", Image_Feature_ALL[position_query].unsqueeze(0).shape) # [1, 64]
             
             distance = F.pairwise_distance(sketch_feature.unsqueeze(0), Image_Feature_ALL)
             target_distance = F.pairwise_distance(sketch_feature.unsqueeze(0),
