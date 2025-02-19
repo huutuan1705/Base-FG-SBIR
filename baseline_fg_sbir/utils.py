@@ -11,7 +11,6 @@ def get_transform(type):
         transform_list.extend([
             transforms.RandomHorizontalFlip(0.1),
             transforms.RandomRotation(10),
-            transforms.RandomCrop(32, padding=2)
         ])
         
     return transforms.Compose(transform_list)

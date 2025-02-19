@@ -9,8 +9,8 @@ class Attention_global(nn.Module):
         super(Attention_global, self).__init__()
         self.pool_method =  nn.AdaptiveMaxPool2d(1) # as default
         self.net = nn.Sequential(nn.Conv2d(2048, 512, kernel_size=1),
-                                 nn.ReLU(),
                                  nn.BatchNorm2d(512),
+                                 nn.ReLU(),
                                  nn.Dropout(0.2),
                                  nn.Conv2d(512, 1, kernel_size=1))
        
