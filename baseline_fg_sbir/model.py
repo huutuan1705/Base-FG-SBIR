@@ -43,24 +43,24 @@ class FGSBIR_Model(nn.Module):
             self.linear.apply(init_weights)
             self.sketch_linear.apply(init_weights)
             
-        self.optimizer = optim.Adam([
-            {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
-            {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
-            {'params': self.attention.parameters(), 'lr': args.lr_att_linear},
-            {'params': self.sketch_attention.parameters(), 'lr': args.lr_att_linear},
-            {'params': self.linear.parameters(), 'lr': args.lr_att_linear},
-            {'params': self.sketch_linear.parameters(), 'lr': args.lr_att_linear},
-        ])
-        
-        # self.optimizer = optim.Adam(self.sample_train_params, self.args.learning_rate)
-        # self.optimizer = optim.Adam(self.sketch_train_params, self.args.learning_rate)
         # self.optimizer = optim.Adam([
-        #     {'params': filter(lambda param: param.requires_grad, self.sample_train_params), 'lr': self.args.learning_rate},
-        #     {'params': filter(lambda param: param.requires_grad, self.sketch_train_params), 'lr': self.args.learning_rate},
-        #     {'params': self.attn_params, 'lr': self.args.learning_rate},
-        #     {'params': self.linear_params, 'lr': self.args.learning_rate},
-        #     {'params': self.sketch_attn_params, 'lr': self.args.learning_rate},
-        #     {'params': self.sketch_linear_params, 'lr': self.args.learning_rate},])
+        #     {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
+        #     {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
+        #     {'params': self.attention.parameters(), 'lr': args.lr_att_linear},
+        #     {'params': self.sketch_attention.parameters(), 'lr': args.lr_att_linear},
+        #     {'params': self.linear.parameters(), 'lr': args.lr_att_linear},
+        #     {'params': self.sketch_linear.parameters(), 'lr': args.lr_att_linear},
+        # ])
+        
+        self.optimizer = optim.Adam(self.sample_train_params, self.args.learning_rate)
+        self.optimizer = optim.Adam(self.sketch_train_params, self.args.learning_rate)
+        self.optimizer = optim.Adam([
+            {'params': filter(lambda param: param.requires_grad, self.sample_train_params), 'lr': self.args.learning_rate},
+            {'params': filter(lambda param: param.requires_grad, self.sketch_train_params), 'lr': self.args.learning_rate},
+            {'params': self.attn_params, 'lr': self.args.learning_rate},
+            {'params': self.linear_params, 'lr': self.args.learning_rate},
+            {'params': self.sketch_attn_params, 'lr': self.args.learning_rate},
+            {'params': self.sketch_linear_params, 'lr': self.args.learning_rate},])
         
     def test_forward(self, batch):
         # sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
