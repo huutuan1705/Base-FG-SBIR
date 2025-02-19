@@ -25,46 +25,38 @@ class FGSBIR_Model(nn.Module):
             if type(m) == nn.Linear or type(m) == nn.Conv2d:
                 nn.init.kaiming_normal_(m.weight)
         
-        # self.attention = Attention_global()
-        # self.attn_params = self.attention.parameters()
+        self.attention = Attention_global()
+        self.attn_params = self.attention.parameters()
         
-        # self.negative_attention = Attention_global()
-        # self.attn_params = self.attention.parameters()
+        self.negative_attention = Attention_global()
+        self.attn_params = self.attention.parameters()
         
-        # self.sketch_attention = Attention_global()
-        # self.sketch_attn_params = self.sketch_attention.parameters()
+        self.sketch_attention = Attention_global()
+        self.sketch_attn_params = self.sketch_attention.parameters()
+
+        self.linear = Linear_global(feature_num=self.args.output_size)
+        self.linear_params = self.linear.parameters()
         
-        self.attention = AttentionBlock()
-        self.negative_attention = AttentionBlock()
-        self.sketch_attention = AttentionBlock()
-        # self.linear = Linear_global(feature_num=self.args.output_size)
-        # self.linear_params = self.linear.parameters()
+        self.negative_linear = Linear_global(feature_num=self.args.output_size)
+        self.negative_linear_params = self.negative_linear.parameters()
         
-        # self.negative_linear = Linear_global(feature_num=self.args.output_size)
-        # self.negative_linear_params = self.negative_linear.parameters()
-        
-        # self.sketch_linear = Linear_global(feature_num=self.args.output_size)
-        # self.sketch_linear_params = self.sketch_linear.parameters()
-        
-        self.positive_linear = nn.Linear(2048, 64)
-        self.negative_linear = nn.Linear(2048, 64)
-        self.sketch_linear = nn.Linear(2048, 64)
+        self.sketch_linear = Linear_global(feature_num=self.args.output_size)
+        self.sketch_linear_params = self.sketch_linear.parameters()
 
         if self.args.use_kaiming_init:
             self.attention.apply(init_weights)
             self.sketch_attention.apply(init_weights)
             self.linear.apply(init_weights)
             self.sketch_linear.apply(init_weights)
-        
-        self.optimizer = optim.Adam(self.sample_train_params, args.learning_rate)   
-        # self.optimizer = optim.Adam([
-        #     {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
-        #     {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
-            # {'params': self.attention.parameters(), 'lr': args.lr_att_linear},
-            # {'params': self.sketch_attention.parameters(), 'lr': args.lr_att_linear},
-            # {'params': self.linear.parameters(), 'lr': args.lr_att_linear},
-            # {'params': self.sketch_linear.parameters(), 'lr': args.lr_att_linear},
-        # ], weight_decay=5e-4)
+         
+        self.optimizer = optim.Adam([
+            {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
+            {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
+            {'params': self.attention.parameters(), 'lr': args.lr_att_linear},
+            {'params': self.sketch_attention.parameters(), 'lr': args.lr_att_linear},
+            {'params': self.linear.parameters(), 'lr': args.lr_att_linear},
+            {'params': self.sketch_linear.parameters(), 'lr': args.lr_att_linear},
+        ], weight_decay=5e-4)
         
         # self.optimizer = optim.Adam(self.sample_train_params, self.args.learning_rate)
         # self.optimizer = optim.Adam(self.sketch_train_params, self.args.learning_rate)
@@ -87,7 +79,7 @@ class FGSBIR_Model(nn.Module):
             sketch_feature = self.sketch_attention(sketch_feature)
         
         if self.args.use_linear:
-            positive_feature = self.positive_linear(positive_feature)
+            positive_feature = self.linear(positive_feature)
             # sketch_feature = self.linear(sketch_feature)
             sketch_feature = self.sketch_linear(sketch_feature)
             
@@ -109,7 +101,7 @@ class FGSBIR_Model(nn.Module):
             sketch_feature = self.sketch_attention(sketch_feature)
             
         if self.args.use_linear:
-            positive_feature = self.positive_linear(positive_feature)
+            positive_feature = self.linear(positive_feature)
             negative_feature = self.negative_linear(negative_feature)
             # sketch_feature = self.linear(sketch_feature)
             sketch_feature = self.sketch_linear(sketch_feature)
@@ -144,10 +136,6 @@ class FGSBIR_Model(nn.Module):
             s_name = Sketch_Name[num]
             sketch_query_name = '_'.join(s_name.split('/')[-1].split('_')[:-1])
             position_query = Image_Name.index(sketch_query_name)
-
-            # print("sketch_feature.unsqueeze(0) shape: ", sketch_feature.unsqueeze(0).shape) #[1, 64]
-            # print("Image_Feature_ALL shape: ", Image_Feature_ALL.shape) #[200, 64]
-            # print("Image_Feature_ALL[position_query].unsqueeze(0) shape: ", Image_Feature_ALL[position_query].unsqueeze(0).shape) # [1, 64]
             
             distance = F.pairwise_distance(sketch_feature.unsqueeze(0), Image_Feature_ALL)
             target_distance = F.pairwise_distance(sketch_feature.unsqueeze(0),
