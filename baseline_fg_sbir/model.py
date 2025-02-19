@@ -7,7 +7,7 @@ from torch import optim
 from tqdm import tqdm
 
 from backbones import VGG16, ResNet50, InceptionV3
-from attention import Attention_global, Linear_global
+from attention import Attention_global, Linear_global, AttentionBlock
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -28,11 +28,23 @@ class FGSBIR_Model(nn.Module):
         self.attention = Attention_global()
         self.attn_params = self.attention.parameters()
         
+        self.negative_attention = Attention_global()
+        self.attn_params = self.attention.parameters()
+        
         self.sketch_attention = Attention_global()
         self.sketch_attn_params = self.sketch_attention.parameters()
         
+        # self.attention = AttentionBlock()
+        # self.attn_params = self.attention.parameters()
+        
+        # self.sketch_attention = AttentionBlock()
+        # self.sketch_attn_params = self.sketch_attention.parameters()
+        
         self.linear = Linear_global(feature_num=self.args.output_size)
         self.linear_params = self.linear.parameters()
+        
+        self.negative_linear = Linear_global(feature_num=self.args.output_size)
+        self.negative_linear_params = self.negative_linear.parameters()
         
         self.sketch_linear = Linear_global(feature_num=self.args.output_size)
         self.sketch_linear_params = self.sketch_linear.parameters()
@@ -46,10 +58,10 @@ class FGSBIR_Model(nn.Module):
         self.optimizer = optim.Adam([
             {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
-            {'params': self.attention.parameters(), 'lr': args.lr_att_linear},
-            {'params': self.sketch_attention.parameters(), 'lr': args.lr_att_linear},
-            {'params': self.linear.parameters(), 'lr': args.lr_att_linear},
-            {'params': self.sketch_linear.parameters(), 'lr': args.lr_att_linear},
+            # {'params': self.attention.parameters(), 'lr': args.lr_att_linear},
+            # {'params': self.sketch_attention.parameters(), 'lr': args.lr_att_linear},
+            # {'params': self.linear.parameters(), 'lr': args.lr_att_linear},
+            # {'params': self.sketch_linear.parameters(), 'lr': args.lr_att_linear},
         ], weight_decay=5e-4)
         
         # self.optimizer = optim.Adam(self.sample_train_params, self.args.learning_rate)
@@ -90,13 +102,13 @@ class FGSBIR_Model(nn.Module):
         
         if self.args.use_attention:
             positive_feature = self.attention(positive_feature)
-            negative_feature = self.attention(negative_feature)
+            negative_feature = self.negative_attention(negative_feature)
             # sketch_feature = self.attention(sketch_feature)
             sketch_feature = self.sketch_attention(sketch_feature)
             
         if self.args.use_linear:
             positive_feature = self.linear(positive_feature)
-            negative_feature = self.linear(negative_feature)
+            negative_feature = self.negative_linear(negative_feature)
             # sketch_feature = self.linear(sketch_feature)
             sketch_feature = self.sketch_linear(sketch_feature)
 
