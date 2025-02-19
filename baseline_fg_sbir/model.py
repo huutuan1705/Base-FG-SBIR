@@ -57,7 +57,7 @@ class FGSBIR_Model(nn.Module):
             {'params': self.sketch_linear.parameters(), 'lr': args.learning_rate},
             {'params': self.attention.parameters(), 'lr': args.learning_rate},
             {'params': self.negative_attention.parameters(), 'lr': args.learning_rate},
-            {'params': self.sketch_linear.parameters(), 'lr': args.learning_rate},
+            {'params': self.sketch_attention.parameters(), 'lr': args.learning_rate},
         ])
         
     def test_forward(self, batch):
