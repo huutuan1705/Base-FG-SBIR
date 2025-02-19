@@ -28,11 +28,17 @@ class FGSBIR_Model(nn.Module):
         self.attention = Attention_global()
         self.attn_params = self.attention.parameters()
         
+        self.negative_attention = Attention_global()
+        self.negative_attn_params = self.negative_attention.parameters()
+        
         self.sketch_attention = Attention_global()
         self.sketch_attn_params = self.sketch_attention.parameters()
         
         self.linear = Linear_global(feature_num=self.args.output_size)
         self.linear_params = self.linear.parameters()
+        
+        self.negative_linear = Linear_global(feature_num=self.args.output_size)
+        self.negative_linear_params = self.negative_linear.parameters()
         
         self.sketch_linear = Linear_global(feature_num=self.args.output_size)
         self.sketch_linear_params = self.sketch_linear.parameters()
@@ -46,6 +52,8 @@ class FGSBIR_Model(nn.Module):
         self.optimizer = optim.Adam([
             {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
+            {'params': self.linear.parameters(), 'lr': args.learning_rate},
+            {'params': self.attention.parameters(), 'lr': args.learning_rate},
         ])
         
     def test_forward(self, batch):
