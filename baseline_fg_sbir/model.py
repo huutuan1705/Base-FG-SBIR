@@ -28,17 +28,11 @@ class FGSBIR_Model(nn.Module):
         self.attention = Attention_global()
         self.attn_params = self.attention.parameters()
         
-        self.negative_attention = Attention_global()
-        self.negative_attn_params = self.negative_attention.parameters()
-        
         self.sketch_attention = Attention_global()
         self.sketch_attn_params = self.sketch_attention.parameters()
         
         self.linear = Linear_global(feature_num=self.args.output_size)
         self.linear_params = self.linear.parameters()
-        
-        self.negative_linear = Linear_global(feature_num=self.args.output_size)
-        self.negative_linear_params = self.negative_linear.parameters()
         
         self.sketch_linear = Linear_global(feature_num=self.args.output_size)
         self.sketch_linear_params = self.sketch_linear.parameters()
@@ -78,12 +72,12 @@ class FGSBIR_Model(nn.Module):
         
         if self.args.use_attention:
             positive_feature = self.attention(positive_feature)
-            negative_feature = self.negative_attention(negative_feature)
+            negative_feature = self.attention(negative_feature)
             sketch_feature = self.sketch_attention(sketch_feature)
             
         if self.args.use_linear:
             positive_feature = self.linear(positive_feature)
-            negative_feature = self.negative_linear(negative_feature)
+            negative_feature = self.linear(negative_feature)
             sketch_feature = self.sketch_linear(sketch_feature)
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
