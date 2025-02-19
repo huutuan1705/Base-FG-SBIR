@@ -17,6 +17,7 @@ class Attention_global(nn.Module):
         self.net = nn.Sequential(nn.Conv2d(2048, 512, kernel_size=1),
                                  nn.BatchNorm2d(512),
                                  nn.ReLU(),
+                                 nn.Dropout(p=0.2),
                                  nn.Conv2d(512, 1, kernel_size=1))
        
     def forward(self, backbone_tensor):
