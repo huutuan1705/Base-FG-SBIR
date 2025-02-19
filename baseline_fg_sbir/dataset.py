@@ -1,8 +1,6 @@
 import os
 import pickle
 import torch
-import random
-import torchvision.transforms.functional as F
 
 from torch.utils.data import Dataset
 from utils import get_transform
@@ -91,7 +89,3 @@ class FGSBIR_Dataset(Dataset):
                       'positive_img': positive_image, 'positive_path': positive_sample}
             
         return sample
-            
-            
-                     
-            

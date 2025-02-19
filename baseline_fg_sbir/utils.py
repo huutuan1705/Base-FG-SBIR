@@ -14,4 +14,3 @@ def get_transform(type):
         ])
         
     return transforms.Compose(transform_list)
-    

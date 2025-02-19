@@ -35,8 +35,8 @@ if __name__ == "__main__":
     parsers.add_argument('--pretrained', type=str, default='./../')
     parsers.add_argument('--load_pretrained', type=bool, default=False)
     parsers.add_argument('--train_backbone', type=bool, default=True)
-    parsers.add_argument('--use_attention', type=bool, default=True)
-    parsers.add_argument('--use_linear', type=bool, default=True)
+    parsers.add_argument('--use_attention', type=bool, default=False)
+    parsers.add_argument('--use_linear', type=bool, default=False)
     parsers.add_argument('--use_kaiming_init', type=bool, default=False)
     parsers.add_argument('--batch_size', type=int, default=16)
     parsers.add_argument('--test_batch_size', type=int, default=1)
@@ -44,8 +44,7 @@ if __name__ == "__main__":
     parsers.add_argument('--gamma', type=float, default=0.5)
     parsers.add_argument('--margin', type=float, default=0.3)
     parsers.add_argument('--threads', type=int, default=4)
-    parsers.add_argument('--learning_rate', type=float, default=0.0005)
-    parsers.add_argument('--lr_att_linear', type=float, default=0.005)
+    parsers.add_argument('--learning_rate', type=float, default=0.001)
     parsers.add_argument('--epochs', type=int, default=200)
     parsers.add_argument('--eval_freq_iter', type=int, default=100)
     parsers.add_argument('--print_freq_iter', type=int, default=1)
@@ -63,7 +62,7 @@ if __name__ == "__main__":
     # scheduler = StepLR(model.optimizer, step_size=args.step_size, gamma=args.gamma)
     for i_epoch in range(args.epochs):
         print(f"Epoch: {i_epoch+1} / {args.epochs}")
-        loss = 1
+        loss = 0
         for _, batch_data in enumerate(tqdm(dataloader_train)):
             step_count = step_count + 1
             start = time.time()
@@ -78,18 +77,18 @@ if __name__ == "__main__":
             if top10_eval > top10:
                 top1, top5, top10 = top1_eval, top5_eval, top10_eval
                 torch.save(model.state_dict(), "best_model.pth")
-                # torch.save(
-                #     {
-                #         'sample_embedding_network': model.sample_embedding_network.state_dict(),
-                #         'sketch_embedding_network': model.sketch_embedding_network.state_dict(),
-                #     }, args.backbone_name + '_' + args.dataset_name + '_best.pth')
+                torch.save(
+                    {
+                        'sample_embedding_network': model.sample_embedding_network.state_dict(),
+                        'sketch_embedding_network': model.sketch_embedding_network.state_dict(),
+                    }, args.backbone_name + '_' + args.dataset_name + '_best.pth')
                 
-                # torch.save({'attention': model.attention.state_dict(),
-                #             'sketch_attention': model.sketch_attention.state_dict()
-                #             }, args.dataset_name + '_' + str(args.output_size) + '_attention.pth')
-                # torch.save({'linear': model.linear.state_dict(),
-                #             'sketch_linear': model.sketch_linear.state_dict()
-                #             }, args.dataset_name + '_' + str(args.output_size) + '_linear.pth')
+                torch.save({'attention': model.attention.state_dict(),
+                            'sketch_attention': model.sketch_attention.state_dict()
+                            }, args.dataset_name + '_' + str(args.output_size) + '_attention.pth')
+                torch.save({'linear': model.linear.state_dict(),
+                            'sketch_linear': model.sketch_linear.state_dict()
+                            }, args.dataset_name + '_' + str(args.output_size) + '_linear.pth')
                 
             torch.save(model.state_dict(), "last_model.pth")
         # Load model

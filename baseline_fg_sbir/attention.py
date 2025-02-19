@@ -4,6 +4,12 @@ import torch.nn.functional as F
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    
 class Attention_global(nn.Module):
     def __init__(self):
         super(Attention_global, self).__init__()
@@ -22,6 +28,14 @@ class Attention_global(nn.Module):
         fatt1 = backbone_tensor +fatt
         fatt1 = self.pool_method(fatt1).view(-1, 2048)
         return  F.normalize(fatt1)
+
+class Linear_global(nn.Module):
+    def __init__(self, feature_num):
+        super(Linear_global, self).__init__()
+        self.head_layer = nn.Linear(2048, feature_num)
+    
+    def forward(self, x):
+        return F.normalize(self.head_layer(x))
         # return fatt1
 
 class AttentionBlock(nn.Module):
@@ -46,15 +60,6 @@ class AttentionBlock(nn.Module):
         x = F.adaptive_max_pool2d(x, (1, 1))
         x = x.view(x.size(0), -1)
         return x 
-    
-class Linear_global(nn.Module):
-    def __init__(self, feature_num):
-        super(Linear_global, self).__init__()
-        self.head_layer = nn.Linear(2048, feature_num)
-    
-    def forward(self, x):
-        return F.normalize(self.head_layer(x))
-        # return self.head_layer(x)
     
 # input_tensor = torch.randn(68, 2048, 8, 8)
 # model = Attention_global()
