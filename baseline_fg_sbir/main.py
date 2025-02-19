@@ -87,7 +87,7 @@ if __name__ == "__main__":
                 torch.save({'attention': model.attention.state_dict(),
                             'sketch_attention': model.sketch_attention.state_dict()
                             }, args.dataset_name + '_' + str(args.output_size) + '_attention.pth')
-                torch.save({'linear': model.positive_linear.state_dict(),
+                torch.save({'linear': model.linear.state_dict(),
                             'sketch_linear': model.sketch_linear.state_dict()
                             }, args.dataset_name + '_' + str(args.output_size) + '_linear.pth')
                 
