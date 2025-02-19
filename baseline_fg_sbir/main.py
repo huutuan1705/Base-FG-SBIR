@@ -78,18 +78,18 @@ if __name__ == "__main__":
             if top10_eval > top10:
                 top1, top5, top10 = top1_eval, top5_eval, top10_eval
                 torch.save(model.state_dict(), "best_model.pth")
-                torch.save(
-                    {
-                        'sample_embedding_network': model.sample_embedding_network.state_dict(),
-                        'sketch_embedding_network': model.sketch_embedding_network.state_dict(),
-                    }, args.backbone_name + '_' + args.dataset_name + '_best.pth')
+                # torch.save(
+                #     {
+                #         'sample_embedding_network': model.sample_embedding_network.state_dict(),
+                #         'sketch_embedding_network': model.sketch_embedding_network.state_dict(),
+                #     }, args.backbone_name + '_' + args.dataset_name + '_best.pth')
                 
-                torch.save({'attention': model.attention.state_dict(),
-                            'sketch_attention': model.sketch_attention.state_dict()
-                            }, args.dataset_name + '_' + str(args.output_size) + '_attention.pth')
-                torch.save({'linear': model.linear.state_dict(),
-                            'sketch_linear': model.sketch_linear.state_dict()
-                            }, args.dataset_name + '_' + str(args.output_size) + '_linear.pth')
+                # torch.save({'attention': model.attention.state_dict(),
+                #             'sketch_attention': model.sketch_attention.state_dict()
+                #             }, args.dataset_name + '_' + str(args.output_size) + '_attention.pth')
+                # torch.save({'linear': model.linear.state_dict(),
+                #             'sketch_linear': model.sketch_linear.state_dict()
+                #             }, args.dataset_name + '_' + str(args.output_size) + '_linear.pth')
                 
             torch.save(model.state_dict(), "last_model.pth")
         # Load model
