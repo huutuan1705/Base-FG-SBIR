@@ -30,8 +30,8 @@ class Linear_global(nn.Module):
         self.head_layer = nn.Linear(2048, feature_num)
     
     def forward(self, x):
-        return F.normalize(self.head_layer(x))
-        # return self.head_layer(x)
+        # return F.normalize(self.head_layer(x))
+        return self.head_layer(x)
     
 # input_tensor = torch.randn(68, 2048, 8, 8)
 # model = Attention_global()
