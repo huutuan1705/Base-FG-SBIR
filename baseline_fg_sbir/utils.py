@@ -4,7 +4,7 @@ def get_transform(type):
     transform_list = [
         transforms.Resize(299),
         transforms.ToTensor(),
-        transforms.Normalize([0.4914, 0.4821, 0.4465], [0.2471, 0.2435, 0.2616])
+        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
     ]
     
     if type == 'train':

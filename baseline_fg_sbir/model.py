@@ -76,8 +76,8 @@ class FGSBIR_Model(nn.Module):
         #     {'params': self.sketch_linear_params, 'lr': self.args.learning_rate},])
         
     def test_forward(self, batch):
-        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
-        # sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
+        # sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         
         if self.args.use_attention:
