@@ -52,13 +52,16 @@ class FGSBIR_Model(nn.Module):
         self.optimizer = optim.Adam([
             {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
-            # {'params': self.linear.parameters(), 'lr': args.learning_rate},
-            # {'params': self.attention.parameters(), 'lr': args.learning_rate},
+            {'params': self.linear.parameters(), 'lr': args.learning_rate},
+            {'params': self.negative_linear.parameters(), 'lr': args.learning_rate},
+            {'params': self.sketch_linear.parameters(), 'lr': args.learning_rate},
+            {'params': self.attention.parameters(), 'lr': args.learning_rate},
+            {'params': self.negative_attention.parameters(), 'lr': args.learning_rate},
+            {'params': self.sketch_linear.parameters(), 'lr': args.learning_rate},
         ])
         
     def test_forward(self, batch):
-        # sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
-        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         
         if self.args.use_attention:
