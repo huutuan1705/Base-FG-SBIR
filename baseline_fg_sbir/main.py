@@ -63,7 +63,7 @@ if __name__ == "__main__":
     # scheduler = StepLR(model.optimizer, step_size=args.step_size, gamma=args.gamma)
     for i_epoch in range(args.epochs):
         print(f"Epoch: {i_epoch+1} / {args.epochs}")
-        loss = 0
+        loss = 1
         for _, batch_data in enumerate(tqdm(dataloader_train)):
             step_count = step_count + 1
             start = time.time()
