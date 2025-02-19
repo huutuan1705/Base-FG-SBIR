@@ -50,7 +50,7 @@ class FGSBIR_Model(nn.Module):
             {'params': self.sketch_attention.parameters(), 'lr': args.lr_att_linear},
             {'params': self.linear.parameters(), 'lr': args.lr_att_linear},
             {'params': self.sketch_linear.parameters(), 'lr': args.lr_att_linear},
-        ])
+        ], weight_decay=5e-4)
         
         # self.optimizer = optim.Adam(self.sample_train_params, self.args.learning_rate)
         # self.optimizer = optim.Adam(self.sketch_train_params, self.args.learning_rate)
