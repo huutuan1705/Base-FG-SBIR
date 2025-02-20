@@ -113,7 +113,7 @@ class FGSBIR_Model(nn.Module):
         image_array_tests = []
         image_names = []
         
-        for idx, batch in enumerate(datloader_test):
+        for idx, batch in enumerate(tqdm(datloader_test)):
             sketch_features, positive_feature = self.test_forward(batch)
             sketch_array_tests.append(sketch_features)
             sketch_names.append(batch['sketch_path'])
