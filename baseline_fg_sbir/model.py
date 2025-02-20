@@ -142,7 +142,7 @@ class FGSBIR_Model(nn.Module):
             mean_rank_percentile = []
             
             sketch_name = sketch_names[i_batch]
-            sketch_query_name = ''.join(sketch_name.split('/')[-1].split('')[:-1])
+            sketch_query_name = '_'.join(sketch_name.split('/')[-1].split('')[:-1])
             position_query = image_names.index(sketch_query_name)
             
             sampled_batch.squeeze(0)
