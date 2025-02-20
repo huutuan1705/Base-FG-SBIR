@@ -149,7 +149,9 @@ class FGSBIR_Model(nn.Module):
             position_query = image_names.index(sketch_query_name)
             
             sampled_batch.squeeze(0)
+            print("sampled_batch shape: ", sampled_batch.shape)
             for i_sketch in range(sampled_batch.shape[0]):
+                print("sampled_batch[i_sketch] shape: ", sampled_batch[i_sketch].shape)
                 target_distance = F.pairwise_distance(sampled_batch[i_sketch].unsqueeze(0).to(device), 
                                                       image_array_tests[position_query].unsqueeze(0).to(device))
                 distance = F.pairwise_distance(sampled_batch[i_sketch].unsqueeze(0).to(device),
