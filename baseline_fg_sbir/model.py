@@ -145,7 +145,7 @@ class FGSBIR_Model(nn.Module):
             
             # print("sketch_name[0]: ", sketch_name[0])
             
-            sketch_query_name = '_'.join(sketch_name.split('/')[-1].split('')[:-1])
+            sketch_query_name = '_'.join(sketch_name.split('/')[-1].split('_')[:-1])
             position_query = image_names.index(sketch_query_name)
             
             sampled_batch.squeeze(0)
