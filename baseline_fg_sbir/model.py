@@ -126,8 +126,8 @@ class FGSBIR_Model(nn.Module):
         sketch_array_tests = torch.stack(sketch_array_tests)
         image_array_tests = torch.stack(image_array_tests)
         
-        print("sketch_array_tests shape: ", sketch_array_tests.shape)
-        print("image_array_tests shape: ", image_array_tests.shape)
+        # print("sketch_array_tests shape: ", sketch_array_tests.shape)  # [323, 1, 25, 64]
+        # print("image_array_tests shape: ", image_array_tests.shape)    # [323, 64]
         
         num_steps = len(sketch_array_tests)
         
@@ -141,10 +141,9 @@ class FGSBIR_Model(nn.Module):
             mean_rank = []
             mean_rank_percentile = []
             
-            sketch_name = sketch_names[i_batch]
+            sketch_name = sketch_names[i_batch][0]
             
-            print("sketch_name: ", sketch_name)
-            print("sketch_name[0]: ", sketch_name[0])
+            # print("sketch_name[0]: ", sketch_name[0])
             
             sketch_query_name = '_'.join(sketch_name.split('/')[-1].split('')[:-1])
             position_query = image_names.index(sketch_query_name)
