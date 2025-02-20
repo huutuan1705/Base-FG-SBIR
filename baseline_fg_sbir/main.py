@@ -72,7 +72,7 @@ if __name__ == "__main__":
         # scheduler.step()
         with torch.no_grad():
             model.eval()
-            top1_eval, top5_eval, top10_eval = model.evaluate(dataloader_test)
+            top1_eval, top5_eval, top10_eval, meanMA, meanMB = model.evaluate(dataloader_test)
             
             if top10_eval > top10:
                 top1, top5, top10 = top1_eval, top5_eval, top10_eval
@@ -107,5 +107,7 @@ if __name__ == "__main__":
         print('Top 1 accuracy:  {:.4f}'.format(top1_eval))
         print('Top 5 accuracy:  {:.4f}'.format(top5_eval))
         print('Top 10 accuracy: {:.4f}'.format(top10_eval))
+        print('Mean A:          {:.4f}'.format(meanMA))
+        print('Mean B:          {:.4f}'.format(meanMB))
         print('Loss:            {:.4f}'.format(loss))
         print("========================================")
