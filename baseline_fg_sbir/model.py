@@ -148,8 +148,7 @@ class FGSBIR_Model(nn.Module):
             sketch_query_name = '_'.join(sketch_name.split('/')[-1].split('_')[:-1])
             position_query = image_names.index(sketch_query_name)
             
-            print("sampled_batch shape: ", sampled_batch.shape)
-            sampled_batch.squeeze(0)
+            sampled_batch = sampled_batch.squeeze(0)
             print("sampled_batch shape: ", sampled_batch.shape)
             for i_sketch in range(sampled_batch.shape[0]):
                 print("sampled_batch[i_sketch] shape: ", sampled_batch[i_sketch].shape)
