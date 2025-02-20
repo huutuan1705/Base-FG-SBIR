@@ -47,52 +47,71 @@ class FGSBIR_Model(nn.Module):
             {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
         ])
+    
+    def comput_loss(self, anchors, positive, negative):
+        positive_expanded = positive.unsqueeze(1).expand(-1, self.args.num_anchors, -1)
+        negative_expanded = negative.unsqueeze(1).expand(-1, self.args.num_anchors, -1)
         
-    def test_forward(self, batch):
-        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
-        positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
+        anchors_reshaped = anchors.reshape(-1, self.args.output_size)
+        positive_reshaped = positive_expanded.reshape(-1, self.args.output_size)
+        negative_reshaped = negative_expanded.reshape(-1, self.args.output_size)
         
-        if self.args.use_attention:
-            positive_feature = self.attention(positive_feature)
-            sketch_feature = self.sketch_attention(sketch_feature)
+        losses = self.loss(anchors_reshaped, positive_reshaped, negative_reshaped)
         
-        if self.args.use_linear:
-            positive_feature = self.linear(positive_feature)
-            sketch_feature = self.sketch_linear(sketch_feature)
-            
-        return sketch_feature, positive_feature
+        return losses
         
     def train_model(self, batch):
         self.train()
         self.optimizer.zero_grad()
             
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
-        negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
-        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        positive_feature = self.attention(positive_feature)
+        positive_feature = self.linear(positive_feature)
         
-        if self.args.use_attention:
-            positive_feature = self.attention(positive_feature)
-            negative_feature = self.attention(negative_feature)
+        negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
+        negative_feature = self.attention(negative_feature)
+        negative_feature = self.linear(negative_feature)
+        
+        sketch_features = []
+        sketch_imgs_tensor = batch['sketch_imgs'].to(device)
+        for i in range(sketch_imgs_tensor.shape[0]):
+            sketch_feature = self.sketch_embedding_network(sketch_imgs_tensor[i].to(device))
             sketch_feature = self.sketch_attention(sketch_feature)
-            
-        if self.args.use_linear:
-            positive_feature = self.linear(positive_feature)
-            negative_feature = self.linear(negative_feature)
             sketch_feature = self.sketch_linear(sketch_feature)
-
-        loss = self.loss(sketch_feature, positive_feature, negative_feature)
+            sketch_features.append(sketch_feature)
+        sketch_features = torch.stack(sketch_features, dim=0)
+        
+        loss = self.comput_loss(sketch_features, positive_feature, negative_feature)
         loss.backward()
         self.optimizer.step()
 
         return loss.item() 
 
+    def test_forward(self, batch):
+        positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
+        positive_feature = self.attention(positive_feature)
+        positive_feature = self.linear(positive_feature)
+        
+        sketch_features = []
+        sketch_imgs_tensor = batch['sketch_imgs'].to(device)
+        for i in range(sketch_imgs_tensor.shape[0]):
+            sketch_feature = self.sketch_embedding_network(sketch_imgs_tensor[i].to(device))
+            sketch_feature = self.sketch_attention(sketch_feature)
+            sketch_feature = self.sketch_linear(sketch_feature)
+            sketch_features.append(sketch_feature)
+        sketch_features = torch.stack(sketch_features, dim=0)
+        
+        print("sketch_features shape: ", sketch_features.shape)
+        print("positive_feature shape: ", positive_feature.shape)
+        return sketch_features, positive_feature
+    
     def evaluate(self, datloader_test):
         Image_Feature_ALL = []
         Image_Name = []
         Sketch_Feature_ALL = []
         Sketch_Name = []
-        start_time = time.time()
         self.eval()
+        
         for i_batch, sanpled_batch in enumerate(tqdm(datloader_test)):
             sketch_feature, positive_feature= self.test_forward(sanpled_batch)
             Sketch_Feature_ALL.extend(sketch_feature)
@@ -106,11 +125,12 @@ class FGSBIR_Model(nn.Module):
         rank = torch.zeros(len(Sketch_Name))
         Image_Feature_ALL = torch.stack(Image_Feature_ALL)
 
-        for num, sketch_feature in enumerate(Sketch_Feature_ALL):
+        for num, sketch_features in enumerate(Sketch_Feature_ALL):
             s_name = Sketch_Name[num]
             sketch_query_name = '_'.join(s_name.split('/')[-1].split('_')[:-1])
             position_query = Image_Name.index(sketch_query_name)
 
+            
             distance = F.pairwise_distance(sketch_feature.unsqueeze(0), Image_Feature_ALL)
             target_distance = F.pairwise_distance(sketch_feature.unsqueeze(0),
                                                   Image_Feature_ALL[position_query].unsqueeze(0))

@@ -12,10 +12,10 @@ from torch.optim.lr_scheduler import StepLR
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def get_dataloader(args):
-    dataset_train = FGSBIR_Dataset(args, mode='train')
+    dataset_train = FGSBIR_Dataset(args, mode='train', on_fly=True)
     dataloader_train = data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=int(args.threads))
     
-    dataset_test = FGSBIR_Dataset(args, mode='test')
+    dataset_test = FGSBIR_Dataset(args, mode='test', on_fly=True)
     dataloader_test = data.DataLoader(dataset_test, batch_size=args.test_batch_size, shuffle=False, num_workers=int(args.threads))
     
     return dataloader_train, dataloader_test
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     parsers.add_argument('--use_kaiming_init', type=bool, default=False)
     parsers.add_argument('--batch_size', type=int, default=16)
     parsers.add_argument('--test_batch_size', type=int, default=1)
-    parsers.add_argument('--step_size', type=int, default=100)
+    parsers.add_argument('--num_anchors', type=int, default=25)
     parsers.add_argument('--gamma', type=float, default=0.5)
     parsers.add_argument('--margin', type=float, default=0.3)
     parsers.add_argument('--threads', type=int, default=4)
@@ -63,11 +63,11 @@ if __name__ == "__main__":
     for i_epoch in range(args.epochs):
         print(f"Epoch: {i_epoch+1} / {args.epochs}")
         loss = 0
-        for _, batch_data in enumerate(tqdm(dataloader_train)):
-            step_count = step_count + 1
-            start = time.time()
-            model.train()
-            loss = model.train_model(batch=batch_data)
+        # for _, batch_data in enumerate(tqdm(dataloader_train)):
+        #     step_count = step_count + 1
+        #     start = time.time()
+        #     model.train()
+        #     loss = model.train_model(batch=batch_data)
 
         # scheduler.step()
         with torch.no_grad():
