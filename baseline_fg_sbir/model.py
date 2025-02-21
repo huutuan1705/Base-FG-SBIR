@@ -1,5 +1,5 @@
+import time
 import torch
-import numpy as np
 import torch.nn as nn
 import torch.nn.functional as F
 
@@ -46,134 +46,94 @@ class FGSBIR_Model(nn.Module):
         self.optimizer = optim.Adam([
             {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
+            {'params': self.attention.parameters(), 'lr': args.learning_rate},
+            {'params': self.sketch_attention.parameters(), 'lr': args.learning_rate},
+            {'params': self.linear.parameters(), 'lr': args.learning_rate},
+            {'params': self.sketch_linear.parameters(), 'lr': args.learning_rate},
         ])
-    
-    def comput_loss(self, anchors, positive, negative):
-        positive_expanded = positive.unsqueeze(1).expand(-1, self.args.num_anchors, -1)
-        negative_expanded = negative.unsqueeze(1).expand(-1, self.args.num_anchors, -1)
         
-        anchors_reshaped = anchors.reshape(-1, self.args.output_size)
-        positive_reshaped = positive_expanded.reshape(-1, self.args.output_size)
-        negative_reshaped = negative_expanded.reshape(-1, self.args.output_size)
+        # self.optimizer = optim.Adam(self.sample_train_params, self.args.learning_rate)
+        # self.optimizer = optim.Adam(self.sketch_train_params, self.args.learning_rate)
+        # self.optimizer = optim.Adam([
+        #     {'params': filter(lambda param: param.requires_grad, self.sample_train_params), 'lr': self.args.learning_rate},
+        #     {'params': filter(lambda param: param.requires_grad, self.sketch_train_params), 'lr': self.args.learning_rate},
+        #     {'params': self.attn_params, 'lr': self.args.learning_rate},
+        #     {'params': self.linear_params, 'lr': self.args.learning_rate},
+        #     {'params': self.sketch_attn_params, 'lr': self.args.learning_rate},
+        #     {'params': self.sketch_linear_params, 'lr': self.args.learning_rate},])
         
-        losses = self.loss(anchors_reshaped, positive_reshaped, negative_reshaped)
+    def test_forward(self, batch):
+        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         
-        return losses
+        if self.args.use_attention:
+            positive_feature = self.attention(positive_feature)
+            sketch_feature = self.sketch_attention(sketch_feature)
+        
+        if self.args.use_linear:
+            positive_feature = self.linear(positive_feature)
+            sketch_feature = self.sketch_linear(sketch_feature)
+            
+        return sketch_feature, positive_feature
         
     def train_model(self, batch):
         self.train()
         self.optimizer.zero_grad()
             
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
-        positive_feature = self.attention(positive_feature)
-        positive_feature = self.linear(positive_feature)
-        
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
-        negative_feature = self.attention(negative_feature)
-        negative_feature = self.linear(negative_feature)
+        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         
-        sketch_features = []
-        sketch_imgs_tensor = batch['sketch_imgs'].to(device)
-        for i in range(sketch_imgs_tensor.shape[0]):
-            sketch_feature = self.sketch_embedding_network(sketch_imgs_tensor[i].to(device))
+        if self.args.use_attention:
+            positive_feature = self.attention(positive_feature)
+            negative_feature = self.attention(negative_feature)
             sketch_feature = self.sketch_attention(sketch_feature)
+            
+        if self.args.use_linear:
+            positive_feature = self.linear(positive_feature)
+            negative_feature = self.linear(negative_feature)
             sketch_feature = self.sketch_linear(sketch_feature)
-            sketch_features.append(sketch_feature)
-        sketch_features = torch.stack(sketch_features, dim=0)
-        
-        loss = self.comput_loss(sketch_features, positive_feature, negative_feature)
+
+        loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
         self.optimizer.step()
 
         return loss.item() 
 
-    def test_forward(self, batch):
-        positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
-        positive_feature = self.attention(positive_feature)
-        positive_feature = self.linear(positive_feature)
-        
-        sketch_features = []
-        sketch_imgs_tensor = batch['sketch_imgs'].to(device)
-        for i in range(sketch_imgs_tensor.shape[0]):
-            sketch_feature = self.sketch_embedding_network(sketch_imgs_tensor[i].to(device))
-            sketch_feature = self.sketch_attention(sketch_feature)
-            sketch_feature = self.sketch_linear(sketch_feature)
-            sketch_features.append(sketch_feature)
-        sketch_features = torch.stack(sketch_features, dim=0)
-        
-        # print("sketch_features shape: ", sketch_features.shape)  # (1, 25 64)
-        # print("positive_feature shape: ", positive_feature.shape)# (1, 64)
-        return sketch_features, positive_feature
-    
     def evaluate(self, datloader_test):
+        Image_Feature_ALL = []
+        Image_Name = []
+        Sketch_Feature_ALL = []
+        Sketch_Name = []
+        start_time = time.time()
         self.eval()
-        
-        sketch_array_tests = []
-        sketch_names = []
-        image_array_tests = []
-        image_names = []
-        
-        for idx, batch in enumerate(tqdm(datloader_test)):
-            sketch_features, positive_feature = self.test_forward(batch)
-            sketch_array_tests.append(sketch_features)
-            sketch_names.append(batch['sketch_path'])
-            
-            for i_num, positive_name in enumerate(batch['positive_path']):
-                if positive_name not in image_names:
-                    image_names.append(batch['positive_sample'][i_num])
-                    image_array_tests.append(positive_feature[i_num])
-                    
-        sketch_array_tests = torch.stack(sketch_array_tests)
-        image_array_tests = torch.stack(image_array_tests)
-        
-        # print("sketch_array_tests shape: ", sketch_array_tests.shape)  # [323, 1, 25, 64]
-        # print("image_array_tests shape: ", image_array_tests.shape)    # [323, 64]
-        
-        num_steps = len(sketch_array_tests)
-        
-        avererage_area = []
-        avererage_area_percentile = []
-        
-        rank_all = torch.zeros(len(sketch_array_tests), num_steps)
-        rank_all_percentile = torch.zeros(len(sketch_array_tests), num_steps)
-        
-        for i_batch, sampled_batch in enumerate(sketch_array_tests):
-            mean_rank = []
-            mean_rank_percentile = []
-            
-            sketch_name = sketch_names[i_batch][0]
-            
-            # print("sketch_name[0]: ", sketch_name[0])
-            
-            sketch_query_name = '_'.join(sketch_name.split('/')[-1].split('_')[:-1])
-            position_query = image_names.index(sketch_query_name)
-            
-            sampled_batch = sampled_batch.squeeze(0) # (25, 64)
-            # print("sampled_batch shape: ", sampled_batch.shape) 
-            for i_sketch in range(sampled_batch.shape[0]):
-                # print("sampled_batch[i_sketch] shape: ", sampled_batch[i_sketch].shape) # (64,)
-                target_distance = F.pairwise_distance(sampled_batch[i_sketch].unsqueeze(0).to(device), 
-                                                      image_array_tests[position_query].unsqueeze(0).to(device))
-                distance = F.pairwise_distance(sampled_batch[i_sketch].unsqueeze(0).to(device),
-                                               image_array_tests.to(device))
-                
-                rank_all[i_batch, i_sketch] = distance.le(target_distance).sum()
-                
-                rank_all_percentile[i_batch, i_sketch] = (len(distance) - rank_all[i_batch, i_sketch]) / (len(distance) - 1)
-                if rank_all[i_batch, i_sketch].item() == 0:
-                    mean_rank.append(1.)
-                else:
-                    mean_rank.append(1/rank_all[i_batch, i_sketch].item())
-                    mean_rank_percentile.append(rank_all_percentile[i_batch, i_sketch].item())
-            
-            avererage_area.append(np.sum(mean_rank)/len(mean_rank))
-            avererage_area_percentile.append(np.sum(mean_rank_percentile)/len(mean_rank_percentile))
+        for i_batch, sanpled_batch in enumerate(tqdm(datloader_test)):
+            sketch_feature, positive_feature= self.test_forward(sanpled_batch)
+            Sketch_Feature_ALL.extend(sketch_feature)
+            Sketch_Name.extend(sanpled_batch['sketch_path'])
 
-        top1_accuracy = rank_all[:, -1].le(1).sum().numpy() / rank_all.shape[0]
-        top5_accuracy = rank_all[:, -1].le(5).sum().numpy() / rank_all.shape[0]
-        top10_accuracy = rank_all[:, -1].le(10).sum().numpy() / rank_all.shape[0]
-        
-        meanMB = np.mean(avererage_area)
-        meanMA = np.mean(avererage_area_percentile)
-        
-        return top1_accuracy, top5_accuracy, top10_accuracy, meanMA, meanMB
+            for i_num, positive_name in enumerate(sanpled_batch['positive_path']):
+                if positive_name not in Image_Name:
+                    Image_Name.append(sanpled_batch['positive_path'][i_num])
+                    Image_Feature_ALL.append(positive_feature[i_num])
+
+        rank = torch.zeros(len(Sketch_Name))
+        Image_Feature_ALL = torch.stack(Image_Feature_ALL)
+
+        for num, sketch_feature in enumerate(Sketch_Feature_ALL):
+            s_name = Sketch_Name[num]
+            sketch_query_name = '_'.join(s_name.split('/')[-1].split('_')[:-1])
+            position_query = Image_Name.index(sketch_query_name)
+
+            distance = F.pairwise_distance(sketch_feature.unsqueeze(0), Image_Feature_ALL)
+            target_distance = F.pairwise_distance(sketch_feature.unsqueeze(0),
+                                                  Image_Feature_ALL[position_query].unsqueeze(0))
+
+            rank[num] = distance.le(target_distance).sum()
+
+        top1 = rank.le(1).sum().numpy() / rank.shape[0]
+        top5 = rank.le(5).sum().numpy() / rank.shape[0]
+        top10 = rank.le(10).sum().numpy() / rank.shape[0]
+
+        # print('Time to EValuate:{}'.format(time.time() - start_time))
+        return top1, top5, top10

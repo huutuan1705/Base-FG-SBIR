@@ -12,10 +12,10 @@ from torch.optim.lr_scheduler import StepLR
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def get_dataloader(args):
-    dataset_train = FGSBIR_Dataset(args, mode='train', on_fly=True)
+    dataset_train = FGSBIR_Dataset(args, mode='train')
     dataloader_train = data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=int(args.threads))
     
-    dataset_test = FGSBIR_Dataset(args, mode='test', on_fly=True)
+    dataset_test = FGSBIR_Dataset(args, mode='test')
     dataloader_test = data.DataLoader(dataset_test, batch_size=args.test_batch_size, shuffle=False, num_workers=int(args.threads))
     
     return dataloader_train, dataloader_test
@@ -40,7 +40,7 @@ if __name__ == "__main__":
     parsers.add_argument('--use_kaiming_init', type=bool, default=False)
     parsers.add_argument('--batch_size', type=int, default=16)
     parsers.add_argument('--test_batch_size', type=int, default=1)
-    parsers.add_argument('--num_anchors', type=int, default=25)
+    parsers.add_argument('--step_size', type=int, default=100)
     parsers.add_argument('--gamma', type=float, default=0.5)
     parsers.add_argument('--margin', type=float, default=0.3)
     parsers.add_argument('--threads', type=int, default=4)
@@ -72,7 +72,7 @@ if __name__ == "__main__":
         # scheduler.step()
         with torch.no_grad():
             model.eval()
-            top1_eval, top5_eval, top10_eval, meanMA, meanMB = model.evaluate(dataloader_test)
+            top1_eval, top5_eval, top10_eval = model.evaluate(dataloader_test)
             
             if top10_eval > top10:
                 top1, top5, top10 = top1_eval, top5_eval, top10_eval
@@ -107,7 +107,5 @@ if __name__ == "__main__":
         print('Top 1 accuracy:  {:.4f}'.format(top1_eval))
         print('Top 5 accuracy:  {:.4f}'.format(top5_eval))
         print('Top 10 accuracy: {:.4f}'.format(top10_eval))
-        print('Mean A:          {:.4f}'.format(meanMA))
-        print('Mean B:          {:.4f}'.format(meanMB))
         print('Loss:            {:.4f}'.format(loss))
         print("========================================")
