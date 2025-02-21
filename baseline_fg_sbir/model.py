@@ -120,8 +120,8 @@ class FGSBIR_Model(nn.Module):
         rank = torch.zeros(len(Sketch_Name))
         Image_Feature_ALL = torch.stack(Image_Feature_ALL)
 
-        print("rank shape: ", rank.shape)
-        print("Sketch_Feature_ALL shape: ", Sketch_Feature_ALL.shape)
+        print("rank shape: ", rank.shape) # (323, )
+        print("Sketch_Feature_ALL len: ", len(Sketch_Feature_ALL))
         for num, sketch_feature in enumerate(Sketch_Feature_ALL):
             s_name = Sketch_Name[num]
             sketch_query_name = '_'.join(s_name.split('/')[-1].split('_')[:-1])
@@ -134,7 +134,10 @@ class FGSBIR_Model(nn.Module):
             target_distance = F.pairwise_distance(sketch_feature.unsqueeze(0),
                                                   Image_Feature_ALL[position_query].unsqueeze(0))
 
+            print("distance: ", distance)
+            print("target_distance: ", target_distance)
             rank[num] = distance.le(target_distance).sum()
+            print("rank[num]: ", rank[num])
 
         print("rank: ", rank)
         top1 = rank.le(1).sum().numpy() / rank.shape[0]
