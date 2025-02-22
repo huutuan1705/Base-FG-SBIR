@@ -100,17 +100,7 @@ class InceptionV3(nn.Module):
         # N x 2048 x 8 x 8
         x = self.Mixed_7c(x)
 
-        x = F.adaptive_max_pool2d(x, (1, 1))
-        # N x 2048 x 1 x 1
-        x = x.view(x.size(0), -1) #N x 2048
-        ##class_prediction = self.linear_classification(x) #N x 125
-        #embedding = F.normalize(x) #N x 2048
-        x = F.normalize(x)
-        x = nn.Linear(2048, 64).to(device)(x)
-        embedding = F.normalize(x)
-        return embedding
-
-        # return x
+        return x
         
     def fix_weights(self):
         for x in self.parameters():

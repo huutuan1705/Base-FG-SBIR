@@ -45,9 +45,9 @@ class FGSBIR_Model(nn.Module):
         # negative_feature = self.attention(negative_feature)
         # sketch_feature = self.attention(sketch_feature)
         
-        # positive_feature = self.linear(self.attention(positive_feature))
-        # negative_feature = self.linear(self.attention(negative_feature))
-        # sketch_feature = self.sketch_linear(self.sketch_attention(sketch_feature))
+        positive_feature = self.linear(self.attention(positive_feature))
+        negative_feature = self.linear(self.attention(negative_feature))
+        sketch_feature = self.linear(self.attention(sketch_feature))
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
@@ -61,8 +61,8 @@ class FGSBIR_Model(nn.Module):
         
         # positive_feature = self.attention(positive_feature)
         # sketch_feature = self.attention(sketch_feature)
-        # positive_feature = self.linear(self.attention(positive_feature))
-        # sketch_feature = self.sketch_linear(self.sketch_attention(sketch_feature))
+        positive_feature = self.linear(self.attention(positive_feature))
+        sketch_feature = self.linear(self.attention(sketch_feature))
         
         return sketch_feature.cpu(), positive_feature.cpu()
     
