@@ -14,7 +14,7 @@ class FGSBIR_Model(nn.Module):
         super(FGSBIR_Model, self).__init__()
         self.sample_embedding_network = eval(args.backbone_name + '(args)')
         self.sketch_embedding_network = eval(args.backbone_name + '(args)')
-        self.loss = nn.TripletMarginLoss(margin=0.2)
+        self.loss = nn.TripletMarginLoss(margin=args.margin)
         self.sample_train_params = self.sample_embedding_network.parameters()
         self.sketch_train_params = self.sketch_embedding_network.parameters()
         
@@ -23,7 +23,8 @@ class FGSBIR_Model(nn.Module):
         
         self.optimizer = optim.Adam([
             {'params': self.sample_train_params, 'lr': args.learning_rate},
-            {'params': self.sketch_train_params, 'lr': args.learning_rate},
+            {'params': self.attention.parameters(), 'lr': args.learning_rate},
+            {'params': self.linear.parameters(), 'lr': args.learning_rate},
         ])
         self.args = args
 
