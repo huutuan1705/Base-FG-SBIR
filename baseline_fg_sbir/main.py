@@ -50,9 +50,9 @@ if __name__ == "__main__":
     parsers.add_argument('--print_freq_iter', type=int, default=1)
     
     args = parsers.parse_args()
-    dataloader_train, dataloader_test = get_dataloader(args=args)
+    dataloader_train, dataloader_test = get_dataloader(args)
     
-    model = FGSBIR_Model(args=args)
+    model = FGSBIR_Model(args)
     model.to(device)
     if args.load_pretrained:
         model.load_state_dict(torch.load(args.pretrained))
