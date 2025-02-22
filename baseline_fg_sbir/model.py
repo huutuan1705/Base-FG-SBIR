@@ -41,9 +41,9 @@ class FGSBIR_Model(nn.Module):
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
         sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         
-        positive_feature = self.attention(positive_feature)
-        negative_feature = self.attention(negative_feature)
-        sketch_feature = self.attention(sketch_feature)
+        # positive_feature = self.attention(positive_feature)
+        # negative_feature = self.attention(negative_feature)
+        # sketch_feature = self.attention(sketch_feature)
         
         # positive_feature = self.linear(self.attention(positive_feature))
         # negative_feature = self.linear(self.attention(negative_feature))
@@ -59,8 +59,8 @@ class FGSBIR_Model(nn.Module):
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         
-        positive_feature = self.attention(positive_feature)
-        sketch_feature = self.attention(sketch_feature)
+        # positive_feature = self.attention(positive_feature)
+        # sketch_feature = self.attention(sketch_feature)
         # positive_feature = self.linear(self.attention(positive_feature))
         # sketch_feature = self.sketch_linear(self.sketch_attention(sketch_feature))
         
