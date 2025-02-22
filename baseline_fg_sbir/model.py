@@ -18,7 +18,7 @@ class FGSBIR_Model(nn.Module):
         self.sketch_train_params = self.sketch_embedding_network.parameters()
         self.optimizer = optim.Adam([
             {'params': self.sample_train_params, 'lr': args.learning_rate},
-            {'params': self.sketch_embedding_network, 'lr': args.learning_rate},
+            {'params': self.sketch_train_params, 'lr': args.learning_rate},
         ])
         self.args = args
 
