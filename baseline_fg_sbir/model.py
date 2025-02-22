@@ -57,11 +57,13 @@ class FGSBIR_Model(nn.Module):
             sketch_query_name = '_'.join(s_name.split('/')[-1].split('_')[:-1])
             position_query = Image_Name.index(sketch_query_name)
 
+            print(sketch_feature.unsqueeze(0).shape)
+            print(len(Image_Feature_ALL))
             distance = F.pairwise_distance(sketch_feature.unsqueeze(0), Image_Feature_ALL)
             target_distance = F.pairwise_distance(sketch_feature.unsqueeze(0),
                                                   Image_Feature_ALL[position_query].unsqueeze(0))
-            print("distance: ", distance)
-            print("target_distance: ", target_distance)
+            print("len distance: ", len(distance))
+            print("len target_distance: ", (target_distance))
             rank[num] = distance.le(target_distance).sum()
 
         top1 = rank.le(1).sum().numpy() / rank.shape[0]
