@@ -12,9 +12,14 @@ class FGSBIR_Model(nn.Module):
     def __init__(self, args):
         super(FGSBIR_Model, self).__init__()
         self.sample_embedding_network = eval(args.backbone_name + '(args)')
+        self.sketch_embedding_network = eval(args.backbone_name + '(args)')
         self.loss = nn.TripletMarginLoss(margin=0.2)
         self.sample_train_params = self.sample_embedding_network.parameters()
-        self.optimizer = optim.Adam(self.sample_train_params, args.learning_rate)
+        self.sketch_train_params = self.sketch_embedding_network.parameters()
+        self.optimizer = optim.Adam([
+            {'params': self.sample_train_params, 'lr': args.learning_rate},
+            {'params': self.sketch_embedding_network, 'lr': args.learning_rate},
+        ])
         self.args = args
 
 
@@ -24,7 +29,7 @@ class FGSBIR_Model(nn.Module):
 
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
-        sample_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
+        sample_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
 
         loss = self.loss(sample_feature, positive_feature, negative_feature)
         loss.backward()
@@ -75,5 +80,5 @@ class FGSBIR_Model(nn.Module):
 
     def test_forward(self, batch):            #  this is being called only during evaluation
         sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
-        positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
+        positive_feature = self.sketch_embedding_network(batch['positive_img'].to(device))
         return sketch_feature.cpu(), positive_feature.cpu()
