@@ -42,7 +42,7 @@ if __name__ == "__main__":
     parsers.add_argument('--test_batch_size', type=int, default=1)
     parsers.add_argument('--step_size', type=int, default=100)
     parsers.add_argument('--gamma', type=float, default=0.5)
-    parsers.add_argument('--margin', type=float, default=0.3)
+    parsers.add_argument('--margin', type=float, default=0.2)
     parsers.add_argument('--threads', type=int, default=4)
     parsers.add_argument('--learning_rate', type=float, default=0.001)
     parsers.add_argument('--epochs', type=int, default=200)
@@ -63,11 +63,10 @@ if __name__ == "__main__":
     for i_epoch in range(args.epochs):
         print(f"Epoch: {i_epoch+1} / {args.epochs}")
         loss = 0
-        # for _, batch_data in enumerate(tqdm(dataloader_train)):
-        #     step_count = step_count + 1
-        #     start = time.time()
-        #     model.train()
-        #     loss = model.train_model(batch=batch_data)
+        for _, batch_data in enumerate(tqdm(dataloader_train)):
+            step_count = step_count + 1
+            model.train()
+            loss = model.train_model(batch=batch_data)
 
         # scheduler.step()
         with torch.no_grad():
@@ -81,14 +80,14 @@ if __name__ == "__main__":
                     {
                         'sample_embedding_network': model.sample_embedding_network.state_dict(),
                         'sketch_embedding_network': model.sketch_embedding_network.state_dict(),
-                    }, args.backbone_name + '_' + args.dataset_name + '_best.pth')
+                    }, args.dataset_name + '_backbone.pth')
                 
                 torch.save({'attention': model.attention.state_dict(),
                             'sketch_attention': model.sketch_attention.state_dict()
-                            }, args.dataset_name + '_' + str(args.output_size) + '_attention.pth')
+                            }, args.dataset_name + '_attention.pth')
                 torch.save({'linear': model.linear.state_dict(),
                             'sketch_linear': model.sketch_linear.state_dict()
-                            }, args.dataset_name + '_' + str(args.output_size) + '_linear.pth')
+                            }, args.dataset_name + '_linear.pth')
                 
             torch.save(model.state_dict(), "last_model.pth")
         # Load model
