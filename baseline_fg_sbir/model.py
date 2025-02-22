@@ -39,11 +39,15 @@ class FGSBIR_Model(nn.Module):
 
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
-        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         
-        positive_feature = self.linear(self.attention(positive_feature))
-        negative_feature = self.linear(self.attention(negative_feature))
-        sketch_feature = self.sketch_linear(self.sketch_attention(sketch_feature))
+        positive_feature = self.attention(positive_feature)
+        negative_feature = self.attention(negative_feature)
+        sketch_feature = self.attention(sketch_feature)
+        
+        # positive_feature = self.linear(self.attention(positive_feature))
+        # negative_feature = self.linear(self.attention(negative_feature))
+        # sketch_feature = self.sketch_linear(self.sketch_attention(sketch_feature))
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
@@ -53,10 +57,12 @@ class FGSBIR_Model(nn.Module):
 
     def test_forward(self, batch):            #  this is being called only during evaluation
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
-        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         
-        positive_feature = self.linear(self.attention(positive_feature))
-        sketch_feature = self.sketch_linear(self.sketch_attention(sketch_feature))
+        positive_feature = self.attention(positive_feature)
+        sketch_feature = self.attention(sketch_feature)
+        # positive_feature = self.linear(self.attention(positive_feature))
+        # sketch_feature = self.sketch_linear(self.sketch_attention(sketch_feature))
         
         return sketch_feature.cpu(), positive_feature.cpu()
     
