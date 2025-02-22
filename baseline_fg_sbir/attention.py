@@ -13,7 +13,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Attention_global(nn.Module):
     def __init__(self):
         super(Attention_global, self).__init__()
-        self.pool_method =  nn.AdaptiveMaxPool2d(1) # as default
+        self.pool_method =  nn.AdaptiveAvgPool2d(1) # as default
         self.net = nn.Sequential(nn.Conv2d(2048, 512, kernel_size=1),
                                  nn.BatchNorm2d(512),
                                  nn.ReLU(),
