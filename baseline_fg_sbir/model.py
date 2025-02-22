@@ -3,7 +3,7 @@ import torch.nn as nn
 from backbones import InceptionV3
 from torch import optim
 import torch
-import time
+from tqdm import tqdm
 import torch.nn.functional as F
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -39,7 +39,7 @@ class FGSBIR_Model(nn.Module):
         Sketch_Name = []
    
         self.eval()
-        for i_batch, sanpled_batch in enumerate(datloader_Test):
+        for i_batch, sanpled_batch in enumerate(tqdm(datloader_Test)):
             sketch_feature, positive_feature= self.test_forward(sanpled_batch)
             Sketch_Feature_ALL.extend(sketch_feature)
             Sketch_Name.extend(sanpled_batch['sketch_path'])
@@ -60,7 +60,8 @@ class FGSBIR_Model(nn.Module):
             distance = F.pairwise_distance(sketch_feature.unsqueeze(0), Image_Feature_ALL)
             target_distance = F.pairwise_distance(sketch_feature.unsqueeze(0),
                                                   Image_Feature_ALL[position_query].unsqueeze(0))
-
+            print(distance)
+            print(target_distance)
             rank[num] = distance.le(target_distance).sum()
 
         top1 = rank.le(1).sum().numpy() / rank.shape[0]
