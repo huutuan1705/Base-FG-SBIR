@@ -101,10 +101,10 @@ class InceptionV3(nn.Module):
         # N x 2048 x 8 x 8
         x = self.Mixed_7c(x)
 
-        feature = self.pool_method(x).view(-1, 2048)
-        return F.normalize(feature)
+        # feature = self.pool_method(x).view(-1, 2048)
+        # return F.normalize(feature)
 
-        # return x
+        return x
         
     def fix_weights(self):
         for x in self.parameters():
