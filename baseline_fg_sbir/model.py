@@ -21,10 +21,14 @@ class FGSBIR_Model(nn.Module):
         self.attention = Attention_global()
         self.linear = Linear_global(feature_num=64)
         
+        self.sketch_attention = Attention_global()
+        self.sketch_linear = Linear_global(feature_num=64)
+        
         self.optimizer = optim.Adam([
             {'params': self.sample_train_params, 'lr': args.learning_rate},
-            {'params': self.attention.parameters(), 'lr': args.learning_rate},
-            {'params': self.linear.parameters(), 'lr': args.learning_rate},
+            {'params': self.sketch_train_params, 'lr': args.learning_rate},
+            # {'params': self.attention.parameters(), 'lr': args.learning_rate},
+            # {'params': self.linear.parameters(), 'lr': args.learning_rate},
         ])
         self.args = args
 
@@ -35,11 +39,11 @@ class FGSBIR_Model(nn.Module):
 
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
-        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         
         positive_feature = self.linear(self.attention(positive_feature))
         negative_feature = self.linear(self.attention(negative_feature))
-        sketch_feature = self.linear(self.attention(sketch_feature))
+        sketch_feature = self.sketch_linear(self.sketch_attention(sketch_feature))
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
@@ -49,10 +53,10 @@ class FGSBIR_Model(nn.Module):
 
     def test_forward(self, batch):            #  this is being called only during evaluation
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
-        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
         
         positive_feature = self.linear(self.attention(positive_feature))
-        sketch_feature = self.linear(self.attention(sketch_feature))
+        sketch_feature = self.sketch_linear(self.sketch_attention(sketch_feature))
         
         return sketch_feature.cpu(), positive_feature.cpu()
     
