@@ -100,7 +100,7 @@ class InceptionV3(nn.Module):
         # N x 2048 x 8 x 8
         x = self.Mixed_7c(x)
 
-        x = F.adaptive_avg_pool2d(x, (1, 1))
+        x = F.adaptive_max_pool2d(x, (1, 1))
         # N x 2048 x 1 x 1
         x = x.view(x.size(0), -1) #N x 2048
         ##class_prediction = self.linear_classification(x) #N x 125
