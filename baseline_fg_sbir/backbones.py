@@ -110,7 +110,9 @@ class InceptionV3(nn.Module):
         x = x.view(x.size(0), -1) #N x 2048
         ##class_prediction = self.linear_classification(x) #N x 125
         #embedding = F.normalize(x) #N x 2048
-        embedding = self.head_layer(x)
+        x = F.normalize(x)
+        x = nn.Linear(2048, 64)
+        embedding = F.normalize(x)
         return embedding
 
         # return x
