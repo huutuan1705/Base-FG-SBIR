@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 import torch.nn.functional as F
-import encoding
 from torchvision.models import Inception_V3_Weights, ResNet50_Weights, VGG16_Weights
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -62,10 +61,6 @@ class InceptionV3(nn.Module):
         self.Mixed_7c = backbone.Mixed_7c
         self.pool_method =  nn.AdaptiveMaxPool2d(1) # as default
         self.args = args
-        self.head_layer = nn.Sequential(
-            encoding.nn.Normalize(),
-            nn.Linear(2048, 64),
-            encoding.nn.Normalize())
 
     def forward(self, x):
         # N x 3 x 299 x 299
