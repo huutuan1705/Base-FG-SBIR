@@ -12,12 +12,12 @@ from rasterize import rasterize_Sketch
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 class FGSBIR_Dataset(data.Dataset):
-    def __init__(self, hp, mode):
+    def __init__(self, args, mode):
 
-        self.hp = hp
+        self.args = args
         self.mode = mode
-        coordinate_path = os.path.join(hp.root_dir, hp.dataset_name , hp.dataset_name + '_Coordinate')
-        self.root_dir = os.path.join(hp.root_dir, hp.dataset_name)
+        coordinate_path = os.path.join(args.root_dir, args.dataset_name , args.dataset_name + '_Coordinate')
+        self.root_dir = os.path.join(args.root_dir, args.dataset_name)
         with open(coordinate_path, 'rb') as fp:
             self.Coordinate = pickle.load(fp)
 
@@ -85,15 +85,15 @@ class FGSBIR_Dataset(data.Dataset):
         elif self.mode == 'Test':
             return len(self.Test_Sketch)
 
-def get_dataloader(hp):
+def get_dataloader(args):
 
-    dataset_Train  = FGSBIR_Dataset(hp, mode = 'Train')
-    dataloader_Train = data.DataLoader(dataset_Train, batch_size=hp.batchsize, shuffle=True,
-                                         num_workers=int(hp.nThreads))
+    dataset_Train  = FGSBIR_Dataset(args, mode = 'Train')
+    dataloader_Train = data.DataLoader(dataset_Train, batch_size=args.batchsize, shuffle=True,
+                                         num_workers=int(args.nThreads))
 
-    dataset_Test  = FGSBIR_Dataset(hp, mode = 'Test')
+    dataset_Test  = FGSBIR_Dataset(args, mode = 'Test')
     dataloader_Test = data.DataLoader(dataset_Test, batch_size=1, shuffle=False,
-                                         num_workers=int(hp.nThreads))
+                                         num_workers=int(args.nThreads))
 
     return dataloader_Train, dataloader_Test
 
