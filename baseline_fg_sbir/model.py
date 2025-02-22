@@ -60,9 +60,9 @@ class FGSBIR_Model(nn.Module):
             distance = F.pairwise_distance(sketch_feature.unsqueeze(0), Image_Feature_ALL)
             target_distance = F.pairwise_distance(sketch_feature.unsqueeze(0),
                                                   Image_Feature_ALL[position_query].unsqueeze(0))
-
+            print("distance: ", distance)
+            print("target_distance: ", target_distance)
             rank[num] = distance.le(target_distance).sum()
-            
 
         top1 = rank.le(1).sum().numpy() / rank.shape[0]
         top5 = rank.le(5).sum().numpy() / rank.shape[0]
