@@ -4,17 +4,14 @@ import torch.nn.functional as F
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
 class Attention_global(nn.Module):
     def __init__(self):
         super(Attention_global, self).__init__()
         self.pool_method =  nn.AdaptiveMaxPool2d(1) # as default
-        self.net = nn.Sequential(nn.Conv2d(2048, 512, kernel_size=1),
+        self.net = nn.Sequential(nn.Conv2d(2048, 1024, kernel_size=1),
+                                 nn.BatchNorm2d(1024),
+                                 nn.ReLU(),
+                                 nn.Conv2d(1024, 512, kernel_size=1),
                                  nn.BatchNorm2d(512),
                                  nn.ReLU(),
                                  nn.Conv2d(512, 1, kernel_size=1))
