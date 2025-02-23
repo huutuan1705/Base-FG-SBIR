@@ -43,6 +43,7 @@ class InceptionV3(nn.Module):
             backbone = models.inception_v3(weights=Inception_V3_Weights.DEFAULT)
         else:
             backbone = models.inception_v3()
+        # backbone = models.inception_v3()
         
         ## Extract Inception Layers ##
         self.Conv2d_1a_3x3 = backbone.Conv2d_1a_3x3
@@ -103,7 +104,7 @@ class InceptionV3(nn.Module):
         # N x 2048 x 8 x 8
         x = self.Mixed_7c(x)
         
-        return x
+        return F.normalize(x, dim=1)
         
     def fix_weights(self):
         for x in self.parameters():
