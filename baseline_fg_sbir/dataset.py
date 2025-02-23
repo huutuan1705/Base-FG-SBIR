@@ -63,10 +63,10 @@ class FGSBIR_Dataset(Dataset):
             negative_image = Image.open(negative_path).convert("RGB")
             
             n_flip = random.random()
-            if n_flip > 0.5:
-                sketch_img = F.hflip(sketch_img)
-                positive_image = F.hflip(positive_image)
-                negative_image = F.hflip(negative_image)
+            # if n_flip > 0.5:
+            #     sketch_img = F.hflip(sketch_img)
+            #     positive_image = F.hflip(positive_image)
+            #     negative_image = F.hflip(negative_image)
             
             sketch_img = self.train_transform(sketch_img)
             positive_image = self.train_transform(positive_image)
