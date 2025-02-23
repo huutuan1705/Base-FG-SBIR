@@ -12,10 +12,10 @@ from torch.optim.lr_scheduler import StepLR
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def get_dataloader(args):
-    dataset_train = FGSBIR_Dataset(args, mode='Train')
+    dataset_train = FGSBIR_Dataset(args, mode='train')
     dataloader_train = data.DataLoader(dataset_train, batch_size=args.batch_size, shuffle=True, num_workers=int(args.threads))
     
-    dataset_test = FGSBIR_Dataset(args, mode='Test')
+    dataset_test = FGSBIR_Dataset(args, mode='test')
     dataloader_test = data.DataLoader(dataset_test, batch_size=args.test_batch_size, shuffle=False, num_workers=int(args.threads))
     
     return dataloader_train, dataloader_test
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     parsers.add_argument('--test_batch_size', type=int, default=1)
     parsers.add_argument('--step_size', type=int, default=100)
     parsers.add_argument('--gamma', type=float, default=0.5)
-    parsers.add_argument('--margin', type=float, default=0.2)
+    parsers.add_argument('--margin', type=float, default=0.3)
     parsers.add_argument('--threads', type=int, default=4)
     parsers.add_argument('--learning_rate', type=float, default=0.001)
     parsers.add_argument('--epochs', type=int, default=200)
@@ -50,9 +50,9 @@ if __name__ == "__main__":
     parsers.add_argument('--print_freq_iter', type=int, default=1)
     
     args = parsers.parse_args()
-    dataloader_train, dataloader_test = get_dataloader(args)
+    dataloader_train, dataloader_test = get_dataloader(args=args)
     
-    model = FGSBIR_Model(args)
+    model = FGSBIR_Model(args=args)
     model.to(device)
     if args.load_pretrained:
         model.load_state_dict(torch.load(args.pretrained))
@@ -65,6 +65,7 @@ if __name__ == "__main__":
         loss = 0
         for _, batch_data in enumerate(tqdm(dataloader_train)):
             step_count = step_count + 1
+            start = time.time()
             model.train()
             loss = model.train_model(batch=batch_data)
 
@@ -79,14 +80,14 @@ if __name__ == "__main__":
                 torch.save(
                     {
                         'sample_embedding_network': model.sample_embedding_network.state_dict(),
-                        # 'sketch_embedding_network': model.sketch_embedding_network.state_dict(),
-                    }, args.dataset_name + '_backbone.pth')
+                        'sketch_embedding_network': model.sketch_embedding_network.state_dict(),
+                    }, args.dataset_name + '_bacbkbone.pth')
                 
                 torch.save({'attention': model.attention.state_dict(),
-                            # 'sketch_attention': model.sketch_attention.state_dict()
+                            'sketch_attention': model.sketch_attention.state_dict()
                             }, args.dataset_name + '_attention.pth')
                 torch.save({'linear': model.linear.state_dict(),
-                            # 'sketch_linear': model.sketch_linear.state_dict()
+                            'sketch_linear': model.sketch_linear.state_dict()
                             }, args.dataset_name + '_linear.pth')
                 
             torch.save(model.state_dict(), "last_model.pth")

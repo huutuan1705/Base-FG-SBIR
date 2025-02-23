@@ -8,10 +8,7 @@ class Attention_global(nn.Module):
     def __init__(self):
         super(Attention_global, self).__init__()
         self.pool_method =  nn.AdaptiveMaxPool2d(1) # as default
-        self.net = nn.Sequential(nn.Conv2d(2048, 1024, kernel_size=1),
-                                 nn.BatchNorm2d(1024),
-                                 nn.ReLU(),
-                                 nn.Conv2d(1024, 512, kernel_size=1),
+        self.net = nn.Sequential(nn.Conv2d(2048, 512, kernel_size=1),
                                  nn.BatchNorm2d(512),
                                  nn.ReLU(),
                                  nn.Conv2d(512, 1, kernel_size=1))
@@ -33,30 +30,6 @@ class Linear_global(nn.Module):
     
     def forward(self, x):
         return F.normalize(self.head_layer(x))
-        # return fatt1
-
-class AttentionBlock(nn.Module):
-    def __init__(self, in_channels=2048):
-        super(AttentionBlock, self).__init__()
-        self.conv1 = nn.Conv2d(in_channels, in_channels, kernel_size=1)
-        self.bn = nn.BatchNorm2d(in_channels)
-        self.conv2 = nn.Conv2d(in_channels, in_channels, kernel_size=1)
-        self.softmax = nn.Softmax(dim=1)
-
-    def forward(self, x):
-        identity = x  # Lưu lại đầu vào
-        out = self.conv1(x)
-        out = self.bn(out)
-        out = self.conv2(out)
-        out = self.softmax(out)
-
-        out = out * identity  # dot product
-        x = out + identity # residual
-
-        # Global pooling
-        x = F.adaptive_max_pool2d(x, (1, 1))
-        x = x.view(x.size(0), -1)
-        return x 
     
 # input_tensor = torch.randn(68, 2048, 8, 8)
 # model = Attention_global()

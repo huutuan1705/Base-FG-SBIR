@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import torchvision.models as models
 import torch.nn.functional as F
+
 from torchvision.models import Inception_V3_Weights, ResNet50_Weights, VGG16_Weights
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -99,7 +100,7 @@ class InceptionV3(nn.Module):
         x = self.Mixed_7b(x)
         # N x 2048 x 8 x 8
         x = self.Mixed_7c(x)
-
+        
         return x
         
     def fix_weights(self):
