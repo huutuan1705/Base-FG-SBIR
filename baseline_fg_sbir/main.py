@@ -27,6 +27,7 @@ if __name__ == "__main__":
     parsers.add_argument('--pool_method', type=str, default='AdaptiveAvgPool2d',
                         help='AdaptiveMaxPool2d / AdaptiveAvgPool2d / AvgPool2d')
     parsers.add_argument('--output_size', type=int, default=64)
+    parsers.add_argument('--num_head', type=int, default=4)
     parsers.add_argument('--root_dir', type=str, default='./../')
     parsers.add_argument('--backbone_pretrained', type=str, default='./../')
     parsers.add_argument('--load_backbone_pretrained', type=bool, default=False)
