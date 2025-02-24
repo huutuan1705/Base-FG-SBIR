@@ -29,7 +29,7 @@ class SelfAttention(nn.Module):
         super(SelfAttention, self).__init__()
         self.pool_method =  nn.AdaptiveMaxPool2d(1) # as default
         self.norm = nn.LayerNorm(2048)
-        self.mha = nn.MultiheadAttention(2048, num_heads=8, batch_first=True)
+        self.mha = nn.MultiheadAttention(2048, num_heads=2, batch_first=True)
     
     def forward(self, x):
         bs, c, h, w = x.shape
