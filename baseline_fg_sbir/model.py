@@ -58,17 +58,17 @@ class FGSBIR_Model(nn.Module):
             
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
-        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         
         if self.args.use_attention:
             positive_feature = self.attention(positive_feature)
             negative_feature = self.attention(negative_feature)
-            sketch_feature = self.sketch_attention(sketch_feature)
+            sketch_feature = self.attention(sketch_feature)
             
         if self.args.use_linear:
             positive_feature = self.linear(positive_feature)
             negative_feature = self.linear(negative_feature)
-            sketch_feature = self.sketch_linear(sketch_feature)
+            sketch_feature = self.linear(sketch_feature)
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
@@ -77,16 +77,16 @@ class FGSBIR_Model(nn.Module):
         return loss.item() 
 
     def test_forward(self, batch):
-        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         
         if self.args.use_attention:
             positive_feature = self.attention(positive_feature)
-            sketch_feature = self.sketch_attention(sketch_feature)
+            sketch_feature = self.attention(sketch_feature)
         
         if self.args.use_linear:
             positive_feature = self.linear(positive_feature)
-            sketch_feature = self.sketch_linear(sketch_feature)
+            sketch_feature = self.linear(sketch_feature)
             
         return sketch_feature, positive_feature
     
