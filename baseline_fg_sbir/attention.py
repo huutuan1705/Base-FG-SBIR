@@ -35,8 +35,10 @@ class SelfAttention(nn.Module):
         bs, c, h, w = x.shape
         x_att = x.reshape(bs, c, h*w).transpose(1, 2)
         x_att = self.norm(x_att)
-        att_out, att_map  = self.mha(x_att, x_att, x_att)
-        return att_out.transpose(1, 2).reshape(bs, c, h, w)
+        att_out, _  = self.mha(x_att, x_att, x_att)
+        att_out = att_out.transpose(1, 2).reshape(bs, c, h, w)
+        att_out = self.pool_method(att_out).view(-1, 2048)
+        return F.normalize(att_out)
     
     
 class Linear_global(nn.Module):
