@@ -24,6 +24,21 @@ class Attention_global(nn.Module):
         fatt1 = self.pool_method(fatt1).view(-1, 2048)
         return  F.normalize(fatt1)
 
+class SelfAttention(nn.Module):
+    def __init__(self):
+        super(SelfAttention, self).__init__()
+        self.pool_method =  nn.AdaptiveMaxPool2d(1) # as default
+        self.norm = nn.LayerNorm(2048)
+        self.mha = nn.MultiheadAttention(2048, num_heads=2, batch_first=True)
+    
+    def forward(self, x):
+        bs, c, h, w = x.shape
+        x_att = x.reshape(bs, c, h*w).transpose(1, 2)
+        x_att = self.norm(x_att)
+        att_out, att_map  = self.mha(x_att, x_att, x_att)
+        return att_out.transpose(1, 2).reshape(bs, c, h, w)
+    
+    
 class Linear_global(nn.Module):
     def __init__(self, feature_num):
         super(Linear_global, self).__init__()
@@ -33,7 +48,7 @@ class Linear_global(nn.Module):
         return F.normalize(self.head_layer(x))
     
 # input_tensor = torch.randn(68, 2048, 8, 8)
-# model = Attention_global()
-# output= model(input_tensor)
+# model = SelfAttention()
+# output = model(input_tensor)
 
 # print("Output shape:", output.shape)
