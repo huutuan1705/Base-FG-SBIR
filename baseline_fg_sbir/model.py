@@ -49,7 +49,7 @@ class FGSBIR_Model(nn.Module):
         
     def train_model(self, batch, optimizer):
         self.train()
-        self.optimizer.zero_grad()
+        optimizer.zero_grad()
             
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
