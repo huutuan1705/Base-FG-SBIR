@@ -46,9 +46,9 @@ class FGSBIR_Model(nn.Module):
         self.optimizer = optim.Adam([
             {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
-            # {'params': self.attention.parameters(), 'lr': args.learning_rate},
+            {'params': self.attention.parameters(), 'lr': args.learning_rate},
             # {'params': self.sketch_attention.parameters(), 'lr': args.learning_rate},
-            # {'params': self.linear.parameters(), 'lr': args.learning_rate},
+            {'params': self.linear.parameters(), 'lr': args.learning_rate},
             # {'params': self.sketch_linear.parameters(), 'lr': args.learning_rate},
         ])
         
