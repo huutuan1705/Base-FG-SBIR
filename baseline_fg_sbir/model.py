@@ -28,7 +28,7 @@ class FGSBIR_Model(nn.Module):
         self.attention = SelfAttention(args)
         self.attn_params = self.attention.parameters()
         
-        self.sketch_attention = SelfAttention(args)
+        self.sketch_attention = Attention_global()
         self.sketch_attn_params = self.sketch_attention.parameters()
         
         self.linear = Linear_global(feature_num=self.args.output_size)
