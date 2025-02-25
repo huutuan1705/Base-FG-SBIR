@@ -3,6 +3,7 @@ import time
 import torch
 import argparse
 import torch.utils.data as data 
+from torch import optim
 
 from tqdm import tqdm
 from dataset import FGSBIR_Dataset
@@ -59,7 +60,7 @@ if __name__ == "__main__":
         model.load_state_dict(torch.load(args.pretrained))
     
     step_count, top1, top5, top10 = -1, 0, 0, 0
-    
+    optimizer = optim.Adam({'params': model.parameters(), 'lr': args.learning_rate})
     # scheduler = StepLR(model.optimizer, step_size=args.step_size, gamma=args.gamma)
     for i_epoch in range(args.epochs):
         print(f"Epoch: {i_epoch+1} / {args.epochs}")
@@ -68,7 +69,8 @@ if __name__ == "__main__":
             step_count = step_count + 1
             start = time.time()
             model.train()
-            loss = model.train_model(batch=batch_data)
+            loss, optimizer = model.train_model(batch=batch_data, optimizer=optimizer)
+            optimizer.step()
 
         # scheduler.step()
         with torch.no_grad():

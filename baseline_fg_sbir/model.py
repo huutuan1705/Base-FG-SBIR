@@ -47,7 +47,7 @@ class FGSBIR_Model(nn.Module):
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
         ])
         
-    def train_model(self, batch):
+    def train_model(self, batch, optimizer):
         self.train()
         self.optimizer.zero_grad()
             
@@ -67,9 +67,9 @@ class FGSBIR_Model(nn.Module):
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
-        self.optimizer.step()
+        # self.optimizer.step()
 
-        return loss.item() 
+        return loss.item(), optimizer
 
     def test_forward(self, batch):
         sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
