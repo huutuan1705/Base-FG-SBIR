@@ -45,11 +45,15 @@ class FGSBIR_Model(nn.Module):
             
         self.optimizer = optim.Adam([
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
+            # {'params': self.attention.parameters(), 'lr': args.learning_rate},
+            # {'params': self.sketch_attention.parameters(), 'lr': args.learning_rate},
+            # {'params': self.linear.parameters(), 'lr': args.learning_rate},
+            # {'params': self.sketch_linear.parameters(), 'lr': args.learning_rate},
         ])
         
-    def train_model(self, batch, optimizer):
+    def train_model(self, batch):
         self.train()
-        optimizer.zero_grad()
+        self.optimizer.zero_grad()
             
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
@@ -67,9 +71,9 @@ class FGSBIR_Model(nn.Module):
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
-        # self.optimizer.step()
+        self.optimizer.step()
 
-        return loss.item(), optimizer
+        return loss.item() 
 
     def test_forward(self, batch):
         sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
