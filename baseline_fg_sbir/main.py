@@ -60,7 +60,7 @@ if __name__ == "__main__":
         model.load_state_dict(torch.load(args.pretrained))
     
     step_count, top1, top5, top10 = -1, 0, 0, 0
-    optimizer = optim.Adam({'params': model.parameters(), 'lr': args.learning_rate})
+    optimizer = optim.Adam(params=model.parameters(), lr=args.learning_rate)
     # scheduler = StepLR(model.optimizer, step_size=args.step_size, gamma=args.gamma)
     for i_epoch in range(args.epochs):
         print(f"Epoch: {i_epoch+1} / {args.epochs}")
