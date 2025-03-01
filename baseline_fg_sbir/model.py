@@ -2,12 +2,13 @@ import time
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import numpy as np
 
 from torch import optim
 from tqdm import tqdm
 
 from backbones import VGG16, ResNet50, InceptionV3
-from attention import Attention_global, Linear_global, SelfAttention
+from attention import Linear_global, SelfAttention
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -15,10 +16,8 @@ class FGSBIR_Model(nn.Module):
     def __init__(self, args):
         super(FGSBIR_Model, self).__init__()
         self.sample_embedding_network = eval(args.backbone_name + "(args)")
-        self.sketch_embedding_network = eval(args.backbone_name + "(args)")
         self.loss = nn.TripletMarginLoss(margin=args.margin)        
         self.sample_train_params = self.sample_embedding_network.parameters()
-        self.sketch_train_params = self.sketch_embedding_network.parameters()
         self.args = args
         
         def init_weights(m):
@@ -28,28 +27,15 @@ class FGSBIR_Model(nn.Module):
         self.attention = SelfAttention(args)
         self.attn_params = self.attention.parameters()
         
-        self.sketch_attention = SelfAttention(args)
-        self.sketch_attn_params = self.sketch_attention.parameters()
-        
         self.linear = Linear_global(feature_num=self.args.output_size)
         self.linear_params = self.linear.parameters()
-        
-        self.sketch_linear = Linear_global(feature_num=self.args.output_size)
-        self.sketch_linear_params = self.sketch_linear.parameters()
 
         if self.args.use_kaiming_init:
             self.attention.apply(init_weights)
-            self.sketch_attention.apply(init_weights)
             self.linear.apply(init_weights)
-            self.sketch_linear.apply(init_weights)
             
         self.optimizer = optim.Adam([
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
-            {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
-            # {'params': self.attention.parameters(), 'lr': args.learning_rate},
-            # {'params': self.sketch_attention.parameters(), 'lr': args.learning_rate},
-            # {'params': self.linear.parameters(), 'lr': args.learning_rate},
-            # {'params': self.sketch_linear.parameters(), 'lr': args.learning_rate},
         ])
         
     def train_model(self, batch):
@@ -95,9 +81,9 @@ class FGSBIR_Model(nn.Module):
         Image_Name = []
         Sketch_Feature_ALL = []
         Sketch_Name = []
-        start_time = time.time()
+        
         self.eval()
-        for i_batch, sanpled_batch in enumerate(tqdm(datloader_test)):
+        for _, sanpled_batch in enumerate(tqdm(datloader_test)):
             sketch_feature, positive_feature= self.test_forward(sanpled_batch)
             Sketch_Feature_ALL.extend(sketch_feature)
             Sketch_Name.extend(sanpled_batch['sketch_path'])
@@ -108,7 +94,11 @@ class FGSBIR_Model(nn.Module):
                     Image_Feature_ALL.append(positive_feature[i_num])
 
         rank = torch.zeros(len(Sketch_Name))
+        rank_percentile = torch.zeros(len(Sketch_Name))
         Image_Feature_ALL = torch.stack(Image_Feature_ALL)
+        
+        avererage_area = []
+        avererage_area_percentile = []
 
         for num, sketch_feature in enumerate(Sketch_Feature_ALL):
             s_name = Sketch_Name[num]
@@ -120,10 +110,16 @@ class FGSBIR_Model(nn.Module):
                                                   Image_Feature_ALL[position_query].unsqueeze(0))
 
             rank[num] = distance.le(target_distance).sum()
+            rank_percentile[num] = (len(distance) - rank[num]) / (len(distance) - 1)
+            
+            avererage_area.append(1/rank[num].item() if rank[num].item()!=0 else 1)
+            avererage_area_percentile.append(rank_percentile[num].item() if rank_percentile[num].item!=0 else 1)
 
         top1 = rank.le(1).sum().numpy() / rank.shape[0]
         top5 = rank.le(5).sum().numpy() / rank.shape[0]
         top10 = rank.le(10).sum().numpy() / rank.shape[0]
 
-        # print('Time to EValuate:{}'.format(time.time() - start_time))
-        return top1, top5, top10
+        meanA = np.mean(avererage_area_percentile)
+        meanB = np.mean(avererage_area)
+        
+        return top1, top5, top10, meanA, meanB
