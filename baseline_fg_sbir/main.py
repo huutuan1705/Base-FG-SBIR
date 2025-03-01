@@ -60,7 +60,7 @@ if __name__ == "__main__":
     if args.load_pretrained:
         model.load_state_dict(torch.load(args.pretrained))
     
-    step_count, top1, top5, top10, meanA, meanB = -1, 0, 0, 0
+    step_count, top1, top5, top10, meanA, meanB = -1, 0, 0, 0, 0, 0
     
     # scheduler = StepLR(model.optimizer, step_size=args.step_size, gamma=args.gamma)
     for i_epoch in range(args.epochs):
