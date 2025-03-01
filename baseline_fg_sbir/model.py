@@ -31,7 +31,7 @@ class FGSBIR_Model(nn.Module):
         self.linear_params = self.linear.parameters()
         
         self.sketch_embedding_network = eval(args.backbone_name + "(args)")
-        self.sketch_attention = Attention_global(args)
+        self.sketch_attention = Attention_global()
         self.sketch_linear = Linear_global(feature_num=self.args.output_size)
         
 
