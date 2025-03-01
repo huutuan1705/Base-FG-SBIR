@@ -34,11 +34,13 @@ if __name__ == "__main__":
     parsers.add_argument('--attention_pretrained', type=str, default='./../')
     parsers.add_argument('--linear_pretrained', type=str, default='./../')
     parsers.add_argument('--pretrained', type=str, default='./../')
+    
     parsers.add_argument('--load_pretrained', type=bool, default=False)
     parsers.add_argument('--train_backbone', type=bool, default=True)
-    parsers.add_argument('--use_attention', type=bool, default=False)
-    parsers.add_argument('--use_linear', type=bool, default=False)
+    parsers.add_argument('--use_attention', type=bool, default=True)
+    parsers.add_argument('--use_linear', type=bool, default=True)
     parsers.add_argument('--use_kaiming_init', type=bool, default=False)
+    
     parsers.add_argument('--batch_size', type=int, default=16)
     parsers.add_argument('--test_batch_size', type=int, default=1)
     parsers.add_argument('--step_size', type=int, default=100)
@@ -58,7 +60,7 @@ if __name__ == "__main__":
     if args.load_pretrained:
         model.load_state_dict(torch.load(args.pretrained))
     
-    step_count, top1, top5, top10 = -1, 0, 0, 0
+    step_count, top1, top5, top10, meanA, meanB = -1, 0, 0, 0
     
     # scheduler = StepLR(model.optimizer, step_size=args.step_size, gamma=args.gamma)
     for i_epoch in range(args.epochs):
@@ -73,25 +75,23 @@ if __name__ == "__main__":
         # scheduler.step()
         with torch.no_grad():
             model.eval()
-            top1_eval, top5_eval, top10_eval = model.evaluate(dataloader_test)
+            top1_eval, top5_eval, top10_eval, meanA_eval, meanB_eval = model.evaluate(dataloader_test)
             
             if top10_eval > top10:
-                top1, top5, top10 = top1_eval, top5_eval, top10_eval
+                top1, top5, top10, meanA, meanB = top1_eval, top5_eval, top10_eval, meanA_eval, meanB_eval
                 torch.save(model.state_dict(), "best_model.pth")
                 torch.save(
                     {
                         'sample_embedding_network': model.sample_embedding_network.state_dict(),
-                        'sketch_embedding_network': model.sketch_embedding_network.state_dict(),
                     }, args.dataset_name + '_bacbkbone.pth')
                 
                 torch.save({'attention': model.attention.state_dict(),
-                            'sketch_attention': model.sketch_attention.state_dict()
                             }, args.dataset_name + '_attention.pth')
                 torch.save({'linear': model.linear.state_dict(),
-                            'sketch_linear': model.sketch_linear.state_dict()
                             }, args.dataset_name + '_linear.pth')
                 
             torch.save(model.state_dict(), "last_model.pth")
+            
         # Load model
         # model = FGSBIR_Model(args)
         # model.load_state_dict(torch.load(f"{args.backbone_name}_{args.dataset_name}_best.pth"))
@@ -108,5 +108,7 @@ if __name__ == "__main__":
         print('Top 1 accuracy:  {:.4f}'.format(top1_eval))
         print('Top 5 accuracy:  {:.4f}'.format(top5_eval))
         print('Top 10 accuracy: {:.4f}'.format(top10_eval))
+        print('Mean A:          {:.4f}'.format(meanA_eval))
+        print('Mean B:          {:.4f}'.format(meanB_eval))
         print('Loss:            {:.4f}'.format(loss))
-        print("========================================")
+        print("================================================")
