@@ -35,6 +35,7 @@ if __name__ == "__main__":
     parsers.add_argument('--linear_pretrained', type=str, default='./../')
     parsers.add_argument('--pretrained', type=str, default='./../')
     
+    parsers.add_argument('--is_train', type=bool, default=True)
     parsers.add_argument('--load_pretrained', type=bool, default=False)
     parsers.add_argument('--train_backbone', type=bool, default=True)
     parsers.add_argument('--use_attention', type=bool, default=True)
@@ -66,11 +67,12 @@ if __name__ == "__main__":
     for i_epoch in range(args.epochs):
         print(f"Epoch: {i_epoch+1} / {args.epochs}")
         loss = 0
-        for _, batch_data in enumerate(tqdm(dataloader_train)):
-            step_count = step_count + 1
-            start = time.time()
-            model.train()
-            loss = model.train_model(batch=batch_data)
+        if args.is_train:
+            for _, batch_data in enumerate(tqdm(dataloader_train)):
+                step_count = step_count + 1
+                start = time.time()
+                model.train()
+                loss = model.train_model(batch=batch_data)
 
         # scheduler.step()
         with torch.no_grad():
