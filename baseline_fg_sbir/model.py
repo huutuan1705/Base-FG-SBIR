@@ -41,6 +41,7 @@ class FGSBIR_Model(nn.Module):
             
         self.optimizer = optim.Adam([
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
+            {'params': self.attention.parameters(), 'lr': args.learning_rate},
         ])
         
     def train_model(self, batch):
