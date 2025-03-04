@@ -9,7 +9,8 @@ def get_transform(type):
     
     if type == 'train':
         transform_list.extend([
-            transforms.RandomHorizontalFlip(0.4),
+            transforms.RandomHorizontalFlip(0.25),
+            transforms.RandomVerticalFlip(0.25),
             transforms.RandomRotation(15),
         ])
         
