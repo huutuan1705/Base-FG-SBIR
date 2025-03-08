@@ -31,7 +31,7 @@ class FGSBIR_Model(nn.Module):
         self.linear_params = self.linear.parameters()
         
         self.sketch_embedding_network = eval(args.backbone_name + "(args)")
-        self.sketch_attention = SelfAttention(args)
+        self.sketch_attention = Attention_global()
         self.sketch_linear = Linear_global(feature_num=self.args.output_size)
         
 
@@ -41,7 +41,7 @@ class FGSBIR_Model(nn.Module):
             
         self.optimizer = optim.Adam([
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
-            {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
+            # {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
             # {'params': self.attention.parameters(), 'lr': args.learning_rate},
         ])
         
