@@ -40,7 +40,7 @@ if __name__ == "__main__":
     parsers.add_argument('--train_backbone', type=bool, default=True)
     parsers.add_argument('--use_attention', type=bool, default=True)
     parsers.add_argument('--use_linear', type=bool, default=True)
-    parsers.add_argument('--use_kaiming_init', type=bool, default=False)
+    parsers.add_argument('--use_kaiming_init', type=bool, default=True)
     
     parsers.add_argument('--batch_size', type=int, default=16)
     parsers.add_argument('--test_batch_size', type=int, default=1)
