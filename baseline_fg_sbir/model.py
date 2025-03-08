@@ -71,7 +71,7 @@ class FGSBIR_Model(nn.Module):
         return loss.item() 
 
     def test_forward(self, batch):
-        sketch_feature = self.sample_train_params(batch['sketch_img'].to(device))
+        sketch_feature = self.sample_embedding_network(batch['sketch_img'].to(device))
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         
         if self.args.use_attention:
