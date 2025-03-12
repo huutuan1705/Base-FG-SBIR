@@ -31,6 +31,7 @@ class SelfAttention(nn.Module):
         self.norm = nn.LayerNorm(2048)
         self.mha = nn.MultiheadAttention(2048, num_heads=args.num_heads, batch_first=True)
         # self.mha = nn.MultiheadAttention(2048, num_heads=8, batch_first=True)
+        self.scale = nn.Parameter(torch.zeros(1))
         
     def forward(self, x):
         bs, c, h, w = x.shape
@@ -38,18 +39,18 @@ class SelfAttention(nn.Module):
         x_att = self.norm(x_att)
         att_out, _  = self.mha(x_att, x_att, x_att)
         att_out = att_out.transpose(1, 2).reshape(bs, c, h, w)
-        att_out = self.pool_method(att_out).view(-1, 2048)
-        return F.normalize(att_out)
+        
+        x = self.scale * att_out + x
+        output = self.pool_method(x).view(-1, 2048)
+        return F.normalize(output)
     
     
 class Linear_global(nn.Module):
     def __init__(self, feature_num):
         super(Linear_global, self).__init__()
-        self.dropout = nn.Dropout(0.1)
         self.head_layer = nn.Linear(2048, feature_num)
     
     def forward(self, x):
-        x = self.dropout(x)
         return F.normalize(self.head_layer(x))
     
 # input_tensor = torch.randn(68, 2048, 8, 8)
