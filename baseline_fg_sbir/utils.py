@@ -3,6 +3,7 @@ import torchvision.transforms as transforms
 def get_transform(type):
     if type == 'train':
         transform_list = [
+            transforms.Resize(299),
             transforms.RandomHorizontalFlip(0.5),
             transforms.ColorJitter(brightness=0.15, contrast=0.15, saturation=0.15),
             transforms.RandomRotation(15),
