@@ -29,9 +29,9 @@ class SelfAttention(nn.Module):
         super(SelfAttention, self).__init__()
         self.pool_method =  nn.AdaptiveMaxPool2d(1) # as default
         self.norm = nn.LayerNorm(2048)
-        # self.mha = nn.MultiheadAttention(2048, num_heads=args.num_heads, batch_first=True)
-        self.mha = nn.MultiheadAttention(2048, num_heads=8, batch_first=True)
-    
+        self.mha = nn.MultiheadAttention(2048, num_heads=args.num_heads, batch_first=True)
+        # self.mha = nn.MultiheadAttention(2048, num_heads=8, batch_first=True)
+        
     def forward(self, x):
         bs, c, h, w = x.shape
         x_att = x.reshape(bs, c, h*w).transpose(1, 2)
@@ -45,9 +45,11 @@ class SelfAttention(nn.Module):
 class Linear_global(nn.Module):
     def __init__(self, feature_num):
         super(Linear_global, self).__init__()
+        self.dropout = nn.Dropout(0.1)
         self.head_layer = nn.Linear(2048, feature_num)
     
     def forward(self, x):
+        x = self.dropout(x)
         return F.normalize(self.head_layer(x))
     
 # input_tensor = torch.randn(68, 2048, 8, 8)
