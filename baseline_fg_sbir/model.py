@@ -78,9 +78,9 @@ class FGSBIR_Model(nn.Module):
             positive_feature = self.attention(positive_feature)
             sketch_feature = self.attention(sketch_feature)
         
-        # if self.args.use_linear:
-        #     positive_feature = self.linear(positive_feature)
-        #     sketch_feature = self.linear(sketch_feature)
+        if self.args.use_linear:
+            positive_feature = self.linear(positive_feature)
+            sketch_feature = self.linear(sketch_feature)
             
         return sketch_feature, positive_feature
     
