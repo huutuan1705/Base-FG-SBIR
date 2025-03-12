@@ -49,7 +49,7 @@ class Linear_global(nn.Module):
         self.head_layer = nn.Linear(2048, feature_num)
     
     def forward(self, x):
-        # x = self.dropout(x)
+        x = self.dropout(x)
         return F.normalize(self.head_layer(x))
     
 # input_tensor = torch.randn(68, 2048, 8, 8)
