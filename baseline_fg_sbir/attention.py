@@ -44,7 +44,7 @@ class SelfAttention(nn.Module):
         
         # output = identify * att_out + identify
         # output = F.relu(output)
-        output = self.pool_method(output).view(-1, 2048)
+        output = self.pool_method(att_out).view(-1, 2048)
         return self.norm_output(output)
     
     
