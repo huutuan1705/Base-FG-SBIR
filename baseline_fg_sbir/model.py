@@ -40,8 +40,12 @@ class FGSBIR_Model(nn.Module):
             self.attention.apply(init_weights)
             self.linear.apply(init_weights)
             
+            self.sketch_attention.apply(init_weights)
+            self.sketch_linear.apply(init_weights)
+            
         self.optimizer = optim.Adam([
             {'params': self.sample_embedding_network.parameters(), 'lr': args.learning_rate},
+            {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
             # {'params': self.sketch_embedding_network.parameters(), 'lr': args.learning_rate},
             # {'params': self.attention.parameters(), 'lr': args.learning_rate},
         ])
