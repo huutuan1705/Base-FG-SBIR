@@ -42,8 +42,8 @@ class SelfAttention(nn.Module):
         att_out, _  = self.mha(x_att, x_att, x_att)
         att_out = att_out.transpose(1, 2).reshape(bs, c, h, w)
         
-        output = identify * att_out + identify
-        output = F.relu(output)
+        # output = identify * att_out + identify
+        # output = F.relu(output)
         output = self.pool_method(output).view(-1, 2048)
         return self.norm_output(output)
     
