@@ -21,7 +21,7 @@ class FGSBIR_Model(nn.Module):
         self.args = args
         
         def init_weights(m):
-            if type(m) == nn.Linear or type(m) == nn.Conv2d or type(m) == nn.Parameter:
+            if type(m) == nn.Linear or type(m) == nn.Conv2d or type(m) == nn.LayerNorm:
                 nn.init.kaiming_normal_(m.weight)
         
         self.attention = SelfAttention(args)
