@@ -8,7 +8,7 @@ from PIL import Image
 def get_stroke_num(vector_image):
     return len(np.split(vector_image[:, :2], np.where(vector_image[:, 2])[0] + 1, axis=0)[:-1])
 
-def draw_image_from_list(vector_image, stroke_idx, side=256):
+def draw_image_from_list(vector_image, stroke_idx, side=400):
     vector_image = np.split(vector_image[:, :2], np.where(vector_image[:, 2])[0] + 1, axis=0)[:-1]
     vector_image = [vector_image[x] for x in stroke_idx]
     
@@ -30,7 +30,7 @@ def draw_image_from_list(vector_image, stroke_idx, side=256):
     raster_image = scipy.ndimage.binary_dilation(raster_image)*255.0
     return Image.fromarray(raster_image).convert('RGB')
 
-def draw_image(vector_image, side=256):
+def draw_image(vector_image, side=400):
     raster_image = np.zeros((int(side), int(side)), dtype=np.float32)
     initX, initY = int(vector_image[0, 0]), int(vector_image[0, 1])
     pixel_length = 0
@@ -51,7 +51,7 @@ def draw_image(vector_image, side=256):
     raster_image = scipy.ndimage.binary_dilation(raster_image) * 255.0
     return raster_image
 
-def preprocess(sketch_points, side=256):
+def preprocess(sketch_points, side=400):
     sketch_points = sketch_points.astype(np.float32)
     sketch_points[:, :2] = sketch_points[:, :2] / np.array([256, 256])
     sketch_points[:, :2] = sketch_points[:, :2] * side
