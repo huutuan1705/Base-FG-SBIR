@@ -1,5 +1,8 @@
+import os
+import cv2
 import scipy.ndimage
 import numpy as np
+import pickle
 
 from bresenham import bresenham
 from PIL import Image
@@ -62,3 +65,37 @@ def rasterize_sketch(sketch_points):
     sketch_points = preprocess(sketch_points)
     raster_images = draw_image(sketch_points)
     return raster_images
+
+def rasterize_sketch_save(sketch_points, save_path=None, save_name=""):
+    sketch_points = preprocess(sketch_points)
+    raster_images = draw_image(sketch_points)
+    if save_path:
+        save_full_path = f"{save_path}/{save_name}"
+        # Sử dụng OpenCV
+        # cv2.imwrite(save_full_path, raster_images)
+
+        # Hoặc dùng PIL
+        image = Image.fromarray(raster_images.astype(np.uint8))
+        image.save(save_full_path)
+
+        print(f"Đã lưu ảnh tại: {save_full_path}")
+    
+
+if __name__ == "__main__":
+    root_dir = "D:\Research\Sketch_based_image_retrieval\dataset"
+    dataset_name = "ShoeV2"
+    save_path = "D:/Research/Sketch_based_image_retrieval/dataset/ShoeV2/sketchs"
+    coordinate_path = os.path.join(root_dir, dataset_name, dataset_name + '_Coordinate')
+    with open(coordinate_path, 'rb') as f:
+        coordinate = pickle.load(f)
+    
+    save_folder = "sketch_images"
+    train_sketch = [x for x in coordinate if 'train' in x]
+    test_sketch = [x for x in coordinate if 'test' in x]
+    
+    for item in range(len(train_sketch)):
+        save_name = train_sketch[item].split('/')[-1] + ".jpg"
+        # print(save_name)
+        sketch_path = train_sketch[item]
+        vector_x = coordinate[sketch_path]
+        rasterize_sketch_save(vector_x, save_path, save_name) 

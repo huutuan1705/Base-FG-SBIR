@@ -52,15 +52,18 @@ class FGSBIR_Dataset(Dataset):
             negative_sample = '_'.join(self.train_sketch[negative_item].split('/')[-1].split('_')[:-1])
             negative_path = os.path.join(self.root_dir, 'photo', negative_sample + '.png')
             
-            vector_x = self.coordinate[sketch_path]
-            sketch_img = rasterize_sketch(vector_x)
-               
-            sketch_img = Image.fromarray(sketch_img).convert("RGB")
+            # vector_x = self.coordinate[sketch_path]
+            # sketch_img = rasterize_sketch(vector_x)
+            # sketch_img = Image.fromarray(sketch_img).convert("RGB")
+            
+            sketch_sample = self.train_sketch[item].split('/')[-1]
+            sketch_folder = os.path.join(self.root_dir, 'sketch', sketch_sample + '.png')
             
             positive_image = Image.open(positive_path).convert("RGB")
             negative_image = Image.open(negative_path).convert("RGB")
+            sketch_image = Image.open(sketch_folder).convert("RGB")
             
-            sketch_img = self.train_transform(sketch_img)
+            sketch_img = self.train_transform(sketch_image)
             positive_image = self.train_transform(positive_image)
             negative_image = self.train_transform(negative_image)
             
@@ -72,8 +75,11 @@ class FGSBIR_Dataset(Dataset):
         elif self.mode == "test":
             sketch_path = self.test_sketch[item] 
             vector_x = self.coordinate[sketch_path]
-            sketch_img = rasterize_sketch(vector_x)
-            sketch_img = self.test_transform(Image.fromarray(sketch_img).convert("RGB"))
+            # sketch_img = rasterize_sketch(vector_x)
+            # sketch_img = self.test_transform(Image.fromarray(sketch_img).convert("RGB"))
+            sketch_sample = self.train_sketch[item].split('/')[-1]
+            sketch_folder = os.path.join(self.root_dir, 'sketch', sketch_sample + '.png')
+            sketch_img = self.test_transform(Image.open(sketch_folder).convert("RGB"))
             
             positive_sample = '_'.join(self.test_sketch[item].split('/')[-1].split('_')[:-1])
             positive_path = os.path.join(self.root_dir, 'photo', positive_sample + '.png')
