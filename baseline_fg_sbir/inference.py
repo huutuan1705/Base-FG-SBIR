@@ -61,8 +61,8 @@ def visualize_layernorm(model, sample_input, num=1):
         axs[idx].set_title(f"Scatter plot for {key}")
         axs[idx].grid(True)
         
-        axs[idx].set_xlim(-20, 20)
-        axs[idx].set_ylim(-15, 15)
+        # axs[idx].set_xlim(-20, 20)
+        # axs[idx].set_ylim(-15, 15)
 
     name = "visualization" + str(num) + ".png"
     plt.tight_layout()
@@ -113,7 +113,7 @@ if __name__ == "__main__":
         model.eval()
         dataloader_train, dataloader_test = get_dataloader(args=args)
         count = 1
-        for _, batch_data in enumerate(tqdm(dataloader_train)):
+        for _, batch_data in enumerate(dataloader_train):
             visualize_layernorm(model, batch_data, count)
             break
             
