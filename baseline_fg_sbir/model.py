@@ -50,7 +50,7 @@ class FGSBIR_Model(nn.Module):
             # {'params': self.attention.parameters(), 'lr': args.learning_rate},
         ])
         
-    def train_model(self, batch):
+    def forward(self, batch):
         self.train()
         self.optimizer.zero_grad()
             
