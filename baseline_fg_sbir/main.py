@@ -71,7 +71,7 @@ if __name__ == "__main__":
                 step_count = step_count + 1
                 start = time.time()
                 model.train()
-                loss = model.forward(batch=batch_data)
+                loss = model.train_model(batch=batch_data)
 
         # scheduler.step()
         with torch.no_grad():

@@ -50,13 +50,10 @@ class FGSBIR_Model(nn.Module):
             # {'params': self.attention.parameters(), 'lr': args.learning_rate},
         ])
         
-    def forward(self, batch):
-        self.train()
-        self.optimizer.zero_grad()
-            
-        positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
-        negative_feature = self.sample_embedding_network(batch['negative_img'].to(device))
-        sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
+    def forward(self, sketch_img, positive_img, negative_img):
+        positive_feature = self.sample_embedding_network(positive_img)
+        negative_feature = self.sample_embedding_network(negative_img)
+        sketch_feature = self.sketch_embedding_network(sketch_img)
         
         if self.args.use_attention:
             positive_feature = self.attention(positive_feature)
@@ -67,12 +64,25 @@ class FGSBIR_Model(nn.Module):
             positive_feature = self.linear(positive_feature)
             negative_feature = self.linear(negative_feature)
             sketch_feature = self.sketch_linear(sketch_feature)
+        
+        return sketch_feature, positive_feature, negative_feature
+    
+    def train_model(self, batch):
+        self.train()
+        self.optimizer.zero_grad()
+        
+        sketch_feature, positive_feature, negative_feature = self.forward(
+            batch['sketch_img'].to(device), 
+            batch['positive_img'].to(device), 
+            batch['negative_img'].to(device)
+        )
 
         loss = self.loss(sketch_feature, positive_feature, negative_feature)
         loss.backward()
         self.optimizer.step()
 
         return loss.item() 
+    
 
     def test_forward(self, batch):
         sketch_feature = self.sketch_embedding_network(batch['sketch_img'].to(device))
