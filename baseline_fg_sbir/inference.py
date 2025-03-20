@@ -115,5 +115,5 @@ if __name__ == "__main__":
         count = 1
         for _, batch_data in enumerate(tqdm(dataloader_train)):
             visualize_layernorm(model, batch_data, count)
-            count += 1
+            break
             
