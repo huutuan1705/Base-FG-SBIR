@@ -19,7 +19,7 @@ def get_dataloader(args):
     
     return dataloader_train, dataloader_test
 
-def visualize_layernorm(model, sample_input):
+def visualize_layernorm(model, sample_input, num=1):
     """ Hàm để visualize attention.norm và sketch_attention.norm """
 
     # Tạo biến lưu giá trị đầu vào & đầu ra của hai LayerNorm
@@ -64,8 +64,9 @@ def visualize_layernorm(model, sample_input):
         axs[idx].set_xlim(-20, 20)
         axs[idx].set_ylim(-15, 15)
 
+    name = "visualization" + str(num) + ".png"
     plt.tight_layout()
-    plt.savefig("visualization.png")
+    plt.savefig(name)
     plt.show()
 
 if __name__ == "__main__":
@@ -111,7 +112,8 @@ if __name__ == "__main__":
     with torch.no_grad():
         model.eval()
         dataloader_train, dataloader_test = get_dataloader(args=args)
-        
+        count = 1
         for _, batch_data in enumerate(dataloader_train):
-            visualize_layernorm(model, batch_data)
-            break
+            visualize_layernorm(model, batch_data, count)
+            count += 1
+            
