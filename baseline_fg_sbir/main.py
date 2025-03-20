@@ -7,7 +7,6 @@ import torch.utils.data as data
 from tqdm import tqdm
 from dataset import FGSBIR_Dataset
 from model import FGSBIR_Model
-from torch.optim.lr_scheduler import StepLR
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
