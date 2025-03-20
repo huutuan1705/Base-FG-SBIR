@@ -56,13 +56,13 @@ def visualize_layernorm(model, sample_input, num=1):
 
     for idx, key in enumerate(ln_inputs):
         axs[idx].scatter(ln_inputs[key], ln_outputs[key], s=1, alpha=0.5)
-        axs[idx].set_ylabel("LN Input")
-        axs[idx].set_xlabel("LN Output")
+        axs[idx].set_xlabel("LN Input")
+        axs[idx].set_ylabel("LN Output")
         axs[idx].set_title(f"Scatter plot for {key}")
         axs[idx].grid(True)
         
-        # axs[idx].set_xlim(-3, 14)
-        # axs[idx].set_ylim(-3, 14)
+        axs[idx].set_xlim(-3, 14)
+        axs[idx].set_ylim(-3, 14)
 
     name = "visualization" + str(num) + ".png"
     plt.tight_layout()
