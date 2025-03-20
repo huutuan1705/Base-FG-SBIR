@@ -62,6 +62,7 @@ def visualize_layernorm(model, sample_input):
         axs[idx].grid(True)
 
     plt.tight_layout()
+    plt.savefig("visualization.png")
     plt.show()
 
 if __name__ == "__main__":
