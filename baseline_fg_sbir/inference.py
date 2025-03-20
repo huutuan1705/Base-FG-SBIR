@@ -61,8 +61,8 @@ def visualize_layernorm(model, sample_input):
         axs[idx].set_title(f"Scatter plot for {key}")
         axs[idx].grid(True)
         
-        axs[idx].set_xlim(-25, 25)
-        axs[idx].set_ylim(-25, 25)
+        # axs[idx].set_xlim(-25, 25)
+        # axs[idx].set_ylim(-25, 25)
 
     plt.tight_layout()
     plt.savefig("visualization.png")
