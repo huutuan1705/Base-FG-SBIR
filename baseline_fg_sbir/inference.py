@@ -103,10 +103,11 @@ if __name__ == "__main__":
     model.to(device)
     if args.load_pretrained:
         model.load_state_dict(torch.load(args.pretrained))
-        
-    model.eval()
-    dataloader_train, dataloader_test = get_dataloader(args=args)
     
-    for _, batch_data in enumerate(dataloader_train):
-        visualize_layernorm(model, batch_data)
-        break
+    with torch.no_grad():
+        model.eval()
+        dataloader_train, dataloader_test = get_dataloader(args=args)
+        
+        for _, batch_data in enumerate(dataloader_train):
+            visualize_layernorm(model, batch_data)
+            break
