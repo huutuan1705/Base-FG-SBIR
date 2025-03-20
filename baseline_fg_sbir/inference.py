@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 from dataset import FGSBIR_Dataset
 from model import FGSBIR_Model
-from torchsummary import summary
+from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
@@ -113,7 +113,7 @@ if __name__ == "__main__":
         model.eval()
         dataloader_train, dataloader_test = get_dataloader(args=args)
         count = 1
-        for _, batch_data in enumerate(dataloader_train):
+        for _, batch_data in enumerate(tqdm(dataloader_train)):
             visualize_layernorm(model, batch_data, count)
             count += 1
             
