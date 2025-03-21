@@ -2,10 +2,10 @@ import torch
 import argparse
 import numpy as np
 import torch.utils.data as data 
-import matplotlib.pyplot as plt
 
 from dataset import FGSBIR_Dataset
 from model import FGSBIR_Model
+from utils import visualize_layernorm, visualize_batch
 from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -18,56 +18,6 @@ def get_dataloader(args):
     dataloader_test = data.DataLoader(dataset_test, batch_size=args.test_batch_size, shuffle=False, num_workers=int(args.threads))
     
     return dataloader_train, dataloader_test
-
-def visualize_layernorm(model, sample_input, num=1):
-    """ Hàm để visualize attention.norm và sketch_attention.norm """
-
-    # Tạo biến lưu giá trị đầu vào & đầu ra của hai LayerNorm
-    ln_inputs = {'attention.norm': [], 'sketch_attention.norm': []}
-    ln_outputs = {'attention.norm': [], 'sketch_attention.norm': []}
-
-    # Hàm hook để lưu dữ liệu
-    def hook_fn(layer_name):
-        def hook(module, input, output):
-            ln_inputs[layer_name].append(input[0].detach().cpu().numpy().flatten())
-            ln_outputs[layer_name].append(output.detach().cpu().numpy().flatten())
-        return hook
-
-    # Đặt hook vào hai LayerNorm
-    hooks = []
-    hooks.append(model.attention.norm.register_forward_hook(hook_fn('attention.norm')))
-    hooks.append(model.sketch_attention.norm.register_forward_hook(hook_fn('sketch_attention.norm')))
-
-    # Chạy inference
-    with torch.no_grad():
-        model(sample_input)
-
-    # Gỡ hook sau khi lấy dữ liệu
-    for hook in hooks:
-        hook.remove()
-
-    # Chuyển dữ liệu thành numpy
-    for key in ln_inputs:
-        ln_inputs[key] = np.concatenate(ln_inputs[key])
-        ln_outputs[key] = np.concatenate(ln_outputs[key])
-
-    # Vẽ hai biểu đồ scatter
-    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
-
-    for idx, key in enumerate(ln_inputs):
-        axs[idx].scatter(ln_inputs[key], ln_outputs[key], s=1, alpha=0.5)
-        axs[idx].set_xlabel("LN Input")
-        axs[idx].set_ylabel("LN Output")
-        axs[idx].set_title(f"Scatter plot for {key}")
-        axs[idx].grid(True)
-        
-        axs[idx].set_xlim(-3, 14)
-        axs[idx].set_ylim(-3, 14)
-
-    name = "visualization" + str(num) + ".png"
-    plt.tight_layout()
-    plt.savefig(name)
-    plt.show()
 
 if __name__ == "__main__":
     parsers = argparse.ArgumentParser(description='Base Fine-Grained SBIR model')
@@ -114,6 +64,6 @@ if __name__ == "__main__":
         dataloader_train, dataloader_test = get_dataloader(args=args)
         count = 1
         for _, batch_data in enumerate(dataloader_train):
-            visualize_layernorm(model, batch_data, count)
+            visualize_batch(model, batch_data)
             break
             
