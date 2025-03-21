@@ -4,6 +4,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import torchvision.transforms as transforms
 
+from collections import OrderedDict
+from backbones import FeatureExtractor
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 def get_transform(type):
     if type == 'train':
         transform_list = [
@@ -24,17 +29,19 @@ def get_transform(type):
     return transforms.Compose(transform_list)
 
 def visualize_feature_maps(sketch_features, positive_features, save_path='feature_maps.png'):
+    """
+    Visualize các feature maps từ các layer được chỉ định và lưu thành một ảnh duy nhất
+    """
     # Danh sách các layer cần visualize
-    layers = ['Conv2d_1a_3x3', 'Conv2d_2b_3x3', 'Conv2d_4a_3x3', 'Mixed_6a', 'Mixed_6e', 'Mixed_7c']
+    layer_names = list(sketch_features.keys())
     
     plt.figure(figsize=(20, 30))
-    rows = len(layers) * 2  # 2 loại: sketch và positive
+    rows = len(layer_names) * 2  # 2 loại: sketch và positive
     
-    for i, layer_name in enumerate(layers):
+    for i, layer_name in enumerate(layer_names):
         # Lấy feature maps
-        print(sketch_features[layer_name])
-        sketch_map = sketch_features[layer_name][0].detach().cpu()  # Lấy batch đầu tiên
-        positive_map = positive_features[layer_name][0].detach().cpu()
+        sketch_map = sketch_features[layer_name][0].cpu()  # Lấy batch đầu tiên
+        positive_map = positive_features[layer_name][0].cpu()
         
         # Chọn một số kênh để hiển thị (ví dụ: 8 kênh đầu tiên hoặc tất cả nếu ít hơn 8)
         num_channels = min(8, sketch_map.shape[0])
@@ -62,22 +69,60 @@ def visualize_feature_maps(sketch_features, positive_features, save_path='featur
     plt.close()
     print(f"Feature maps saved to {save_path}")
 
-def visualize_batch(model, batch, save_dir='visualizations'):
+def visualize_with_hooks(model, batch, save_dir='visualizations'):
+    """
+    Sử dụng hooks để visualize feature maps từ một batch
+    """
     # Đảm bảo thư mục lưu trữ tồn tại
     os.makedirs(save_dir, exist_ok=True)
     
     # Chuyển mô hình sang chế độ đánh giá
     model.eval()
     
-    # Forward pass với việc trả về các feature maps
+    # Xác định các layer cần visualize
+    sketch_network = model.sketch_embedding_network
+    photo_network = model.sample_embedding_network
+    
+    sketch_target_layers = OrderedDict([
+        ('Conv2d_1a_3x3', sketch_network.Conv2d_1a_3x3),
+        ('Conv2d_2b_3x3', sketch_network.Conv2d_2b_3x3),
+        ('Conv2d_4a_3x3', sketch_network.Conv2d_4a_3x3),
+        ('Mixed_6a', sketch_network.Mixed_6a),
+        ('Mixed_6e', sketch_network.Mixed_6e),
+        ('Mixed_7c', sketch_network.Mixed_7c)
+    ])
+    
+    photo_target_layers = OrderedDict([
+        ('Conv2d_1a_3x3', photo_network.Conv2d_1a_3x3),
+        ('Conv2d_2b_3x3', photo_network.Conv2d_2b_3x3),
+        ('Conv2d_4a_3x3', photo_network.Conv2d_4a_3x3),
+        ('Mixed_6a', photo_network.Mixed_6a),
+        ('Mixed_6e', photo_network.Mixed_6e),
+        ('Mixed_7c', photo_network.Mixed_7c)
+    ])
+    
+    # Tạo feature extractors
+    sketch_extractor = FeatureExtractor(sketch_network, sketch_target_layers)
+    photo_extractor = FeatureExtractor(photo_network, photo_target_layers)
+    
+    # Trích xuất feature maps
     with torch.no_grad():
-        sketch_features, positive_features = model(batch, return_features=True)
+        sketch_img = batch['sketch_img'].to(device)
+        positive_img = batch['positive_img'].to(device)
+        
+        sketch_features = sketch_extractor(sketch_img)
+        positive_features = photo_extractor(positive_img)
+    
+    # Xóa hooks sau khi sử dụng
+    sketch_extractor.remove_hooks()
+    photo_extractor.remove_hooks()
     
     # Visualize và lưu feature maps
     save_path = os.path.join(save_dir, f"feature_maps_batch.png")
     visualize_feature_maps(sketch_features, positive_features, save_path)
     
     return save_path
+
 
 def visualize_layernorm(model, sample_input, num=1):
     """ Hàm để visualize attention.norm và sketch_attention.norm """

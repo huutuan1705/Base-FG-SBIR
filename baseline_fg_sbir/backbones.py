@@ -113,7 +113,45 @@ class InceptionV3(nn.Module):
     def fix_weights(self):
         for x in self.parameters():
             x.requires_grad = False
+
+class FeatureExtractor:
+    def __init__(self, model, target_layers):
+        """
+        Lớp này giúp trích xuất feature maps từ các layer cụ thể trong mô hình
+        
+        Args:
+            model: Mô hình cần trích xuất feature maps
+            target_layers: Dictionary chứa tên và reference tới các layer cần theo dõi
+        """
+        self.model = model
+        self.target_layers = target_layers
+        self.features = {name: None for name in target_layers.keys()}
+        self.hooks = []
+        self._register_hooks()
+        
+    def _hook_fn(self, name):
+        """Tạo một hook function để lưu output của layer"""
+        def hook(module, input, output):
+            self.features[name] = output.detach()
+        return hook
+        
+    def _register_hooks(self):
+        """Đăng ký các forward hooks cho các layer đã chọn"""
+        for name, layer in self.target_layers.items():
+            hook = layer.register_forward_hook(self._hook_fn(name))
+            self.hooks.append(hook)
             
+    def remove_hooks(self):
+        """Xóa tất cả các hooks"""
+        for hook in self.hooks:
+            hook.remove()
+        self.hooks = []
+        
+    def __call__(self, x):
+        """Thực hiện forward pass qua mô hình và lấy các feature maps"""
+        _ = self.model(x)
+        return self.features
+               
 # dummy_input = torch.randn(25, 3, 299, 299)
 # model = InceptionV3(None)
 # output = model(dummy_input)

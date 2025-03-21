@@ -5,7 +5,7 @@ import torch.utils.data as data
 
 from dataset import FGSBIR_Dataset
 from model import FGSBIR_Model
-from utils import visualize_layernorm, visualize_batch
+from utils import visualize_layernorm, visualize_with_hooks
 from tqdm import tqdm
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -62,6 +62,6 @@ if __name__ == "__main__":
     dataloader_train, dataloader_test = get_dataloader(args=args)
     
     for _, batch_data in enumerate(dataloader_train):
-        visualize_batch(model, batch_data)
+        visualize_with_hooks(model, batch_data)
         break
             
