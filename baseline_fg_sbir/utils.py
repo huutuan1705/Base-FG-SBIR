@@ -32,7 +32,7 @@ def visualize_feature_maps(sketch_features, positive_features, save_path='featur
     
     for i, layer_name in enumerate(layers):
         # Lấy feature maps
-        print(sketch_features)
+        print(sketch_features[layer_name])
         sketch_map = sketch_features[layer_name][0].detach().cpu()  # Lấy batch đầu tiên
         positive_map = positive_features[layer_name][0].detach().cpu()
         
