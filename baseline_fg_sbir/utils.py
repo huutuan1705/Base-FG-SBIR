@@ -70,7 +70,7 @@ def visualize_batch(model, batch, save_dir='visualizations'):
     
     # Forward pass với việc trả về các feature maps
     with torch.no_grad():
-        _, _, _, sketch_features, positive_features = model(batch, return_features=True)
+        sketch_features, positive_features = model(batch, return_features=True)
     
     # Visualize và lưu feature maps
     save_path = os.path.join(save_dir, f"feature_maps_batch.png")

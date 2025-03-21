@@ -59,11 +59,9 @@ if __name__ == "__main__":
     if args.load_pretrained:
         model.load_state_dict(torch.load(args.pretrained))
     
-    with torch.no_grad():
-        model.eval()
-        dataloader_train, dataloader_test = get_dataloader(args=args)
-        count = 1
-        for _, batch_data in enumerate(dataloader_train):
-            visualize_batch(model, batch_data)
-            break
+    dataloader_train, dataloader_test = get_dataloader(args=args)
+    
+    for _, batch_data in enumerate(dataloader_train):
+        visualize_batch(model, batch_data)
+        break
             

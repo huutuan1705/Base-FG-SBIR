@@ -50,7 +50,7 @@ class FGSBIR_Model(nn.Module):
             # {'params': self.attention.parameters(), 'lr': args.learning_rate},
         ])
         
-    def forward(self, batch):
+    def forward(self, batch, return_features=False):
         sketch_img = batch['sketch_img'].to(device)
         positive_img = batch['positive_img'].to(device)
         negative_img = batch['negative_img'].to(device)
@@ -58,6 +58,9 @@ class FGSBIR_Model(nn.Module):
         positive_feature = self.sample_embedding_network(positive_img)
         negative_feature = self.sample_embedding_network(negative_img)
         sketch_feature = self.sketch_embedding_network(sketch_img)
+        
+        positive_output = positive_feature
+        sketch_output = sketch_feature
         
         if self.args.use_attention:
             positive_feature = self.attention(positive_feature)
@@ -68,6 +71,9 @@ class FGSBIR_Model(nn.Module):
             positive_feature = self.linear(positive_feature)
             negative_feature = self.linear(negative_feature)
             sketch_feature = self.sketch_linear(sketch_feature)
+        
+        if return_features:
+            return sketch_output, positive_output
         
         return sketch_feature, positive_feature, negative_feature
     
