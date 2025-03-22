@@ -87,8 +87,8 @@ def visualize_with_hooks(model, batch, save_dir='visualizations'):
         ('Conv2d_1a_3x3', sketch_network.Conv2d_1a_3x3),
         ('Conv2d_2b_3x3', sketch_network.Conv2d_2b_3x3),
         ('Conv2d_4a_3x3', sketch_network.Conv2d_4a_3x3),
-        ('Mixed_6a', sketch_network.Mixed_6a),
-        ('Mixed_6e', sketch_network.Mixed_6e),
+        ('Mixed_5d', sketch_network.Mixed_5d),
+        ('Mixed_6d', sketch_network.Mixed_6d),
         ('Mixed_7c', sketch_network.Mixed_7c)
     ])
     
@@ -96,8 +96,8 @@ def visualize_with_hooks(model, batch, save_dir='visualizations'):
         ('Conv2d_1a_3x3', photo_network.Conv2d_1a_3x3),
         ('Conv2d_2b_3x3', photo_network.Conv2d_2b_3x3),
         ('Conv2d_4a_3x3', photo_network.Conv2d_4a_3x3),
-        ('Mixed_6a', photo_network.Mixed_6a),
-        ('Mixed_6e', photo_network.Mixed_6e),
+        ('Mixed_5d', photo_network.Mixed_5d),
+        ('Mixed_6d', photo_network.Mixed_6d),
         ('Mixed_7c', photo_network.Mixed_7c)
     ])
     
