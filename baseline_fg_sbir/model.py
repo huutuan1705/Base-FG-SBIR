@@ -24,15 +24,16 @@ class FGSBIR_Model(nn.Module):
             if type(m) == nn.Linear or type(m) == nn.Conv2d:
                 nn.init.kaiming_normal_(m.weight)
         
-        self.attention = SelfAttention(args)
+        # self.attention = SelfAttention(args)
+        self.attention = Attention_global()
         self.attn_params = self.attention.parameters()
         
         self.linear = Linear_global(feature_num=self.args.output_size)
         self.linear_params = self.linear.parameters()
         
         self.sketch_embedding_network = eval(args.backbone_name + "(args)")
-        # self.sketch_attention = Attention_global()
-        self.sketch_attention = SelfAttention(args)
+        self.sketch_attention = Attention_global()
+        # self.sketch_attention = SelfAttention(args)
         self.sketch_linear = Linear_global(feature_num=self.args.output_size)
         
 
