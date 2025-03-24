@@ -73,5 +73,5 @@ def rasterize_sketch(sketch_points):
 
 def rasterize_sketch_test(sketch_points, steps=25):
     sketch_points = preprocess(sketch_points)
-    raster_images, _ = draw_image([sketch_points], steps=steps+1)
+    raster_images, _ = draw_image_test([sketch_points], steps=steps+1)
     return raster_images
