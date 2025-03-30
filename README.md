@@ -4,7 +4,7 @@ This repository is built for traditional Fine-Grained Sketch-Based Image Retriev
 
 ## Dataset
 
-QMUL-Shoe-V2 and QMUL-Chair-V2 dataset will be used. Please follow this [link](https://www.kaggle.com/datasets/tuanhuu17052002/fg-sbir-dataset/data) to download dataset.
+QMUL-Shoe-V2 and QMUL-Chair-V2 dataset will be used. Please follow this [link](https://www.kaggle.com/datasets/b20dccn616nguynhutun/fg-sbir-dataset) to download dataset.
 
 ## Training
 
