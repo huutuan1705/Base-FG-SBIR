@@ -148,7 +148,7 @@ class FGSBIR_Model(nn.Module):
                 # print("sampled_batch[:i_sketch+1].shape: ", sampled_batch[:i_sketch+1].shape)
                 sketch_feature = self.linear(sampled_batch[:i_sketch+1].to(device))
                 target_distance = F.pairwise_distance(F.normalize(sketch_feature).to(device), image_array_tests[position_query].to(device))
-                distance = F.pairwise_distance(F.normalize(sketch_feature).to(device), image_array_tests.to(device))
+                distance = F.pairwise_distance(F.normalize(sketch_feature.unsqueeze(0)).to(device), image_array_tests.to(device))
                 
                 rank_all[i_batch, i_sketch] = distance.le(target_distance).sum()
 
