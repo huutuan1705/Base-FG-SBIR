@@ -91,14 +91,14 @@ class FGSBIR_Model(nn.Module):
         positive_feature = self.sample_embedding_network(batch['positive_img'].to(device))
         
         if self.args.use_attention:
-            # positive_feature = self.attention(positive_feature)
+            positive_feature = self.attention(positive_feature)
             sketch_feature = self.attention(sketch_feature)
-            sketch_feature = self.sketch_attention(sketch_feature)
+            # sketch_feature = self.sketch_attention(sketch_feature)
         
         if self.args.use_linear:
-            # positive_feature = self.linear(positive_feature)
+            positive_feature = self.linear(positive_feature)
             sketch_feature = self.linear(sketch_feature)
-            sketch_feature = self.sketch_linear(sketch_feature)
+            # sketch_feature = self.sketch_linear(sketch_feature)
             
         return sketch_feature, positive_feature
     
