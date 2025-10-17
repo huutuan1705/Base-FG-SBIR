@@ -113,9 +113,9 @@ class FGSBIR_Model(nn.Module):
             sketch_features_all = torch.FloatTensor().to(device)
             for data_sketch in batch['sketch_imgs']:
                 # print(data_sketch.shape) # (1, 3, 299, 299)
-                sketch_feature = self.sketch_attention(
+                sketch_feature = self.linear(self.sketch_attention(
                     self.sketch_embedding_network(data_sketch.to(device))
-                )
+                ))
                 # print("sketch_feature.shape: ", sketch_feature.shape) #(1, 2048)
                 sketch_features_all = torch.cat((sketch_features_all, sketch_feature.detach()))
             
@@ -146,7 +146,7 @@ class FGSBIR_Model(nn.Module):
             
             for i_sketch in range(sampled_batch.shape[0]):
                 # print("sampled_batch[:i_sketch+1].shape: ", sampled_batch[:i_sketch+1].shape)
-                sketch_feature = self.linear(sampled_batch[i_sketch].to(device))
+                # sketch_feature = self.linear(sampled_batch[i_sketch].to(device))
                 target_distance = F.pairwise_distance(F.normalize(sketch_feature).to(device), image_array_tests[position_query].to(device))
                 distance = F.pairwise_distance(F.normalize(sketch_feature.unsqueeze(0)).to(device), image_array_tests.to(device))
                 
